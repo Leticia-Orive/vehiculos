@@ -1,0 +1,53 @@
+<div class="container">
+  <h1>Gestión de Vehículos</h1>
+
+  <div class="filtros">
+    <button (click)="setFiltro('')" [class.activo]="filtroTipo === ''">Todos</button>
+    <button (click)="setFiltro('auto')" [class.activo]="filtroTipo === 'auto'">Autos</button>
+    <button (click)="setFiltro('camioneta')" [class.activo]="filtroTipo === 'camioneta'">Camionetas</button>
+    <button (click)="setFiltro('moto')" [class.activo]="filtroTipo === 'moto'">Motos</button>
+    <button (click)="setFiltro('camion')" [class.activo]="filtroTipo === 'camion'">Camiones</button>
+  </div>
+
+  <table class="tabla-vehiculos">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Año</th>
+        <th>Color</th>
+        <th>Precio</th>
+        <th>Tipo</th>
+        <th>Disponible</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (v of vehiculosFiltrados; track v.id) {
+        <tr>
+          <td>{{ v.id }}</td>
+          <td>{{ v.marca }}</td>
+          <td>{{ v.modelo }}</td>
+          <td>{{ v.anio }}</td>
+          <td>{{ v.color }}</td>
+          <td>{{ v.precio | currency:'USD' }}</td>
+          <td><span class="badge badge-{{v.tipo}}">{{ v.tipo }}</span></td>
+          <td>
+            @if (v.disponible) {
+              <span class="disponible">Sí</span>
+            } @else {
+              <span class="no-disponible">No</span>
+            }
+          </td>
+          <td>
+            <a [routerLink]="['/vehiculo', v.id]" class="btn-ver">Ver</a>
+            <button (click)="eliminar(v.id)" class="btn-eliminar">Eliminar</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="9">No hay vehículos disponibles.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

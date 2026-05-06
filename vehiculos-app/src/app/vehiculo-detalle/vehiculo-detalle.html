@@ -1,0 +1,25 @@
+<div class="container">
+  @if (vehiculo) {
+    <div class="tarjeta-detalle">
+      <h2>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h2>
+      <ul class="info-lista">
+        <li><strong>ID:</strong> {{ vehiculo.id }}</li>
+        <li><strong>Año:</strong> {{ vehiculo.anio }}</li>
+        <li><strong>Color:</strong> {{ vehiculo.color }}</li>
+        <li><strong>Tipo:</strong> <span class="badge badge-{{vehiculo.tipo}}">{{ vehiculo.tipo }}</span></li>
+        <li><strong>Precio:</strong> {{ vehiculo.precio | currency:'USD' }}</li>
+        <li><strong>Disponible:</strong>
+          @if (vehiculo.disponible) {
+            <span class="disponible">Sí</span>
+          } @else {
+            <span class="no-disponible">No</span>
+          }
+        </li>
+      </ul>
+      <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+    </div>
+  } @else {
+    <p>Vehículo no encontrado.</p>
+    <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+  }
+</div>
