@@ -1,0 +1,15 @@
+<!-- Overlay de fondo oscuro -->
+@if (mostrar) {
+  <div class="modal-overlay" (click)="onCancelar()">
+    <!-- Modal centrada (no se cierra al hacer click en el contenido) -->
+    <div class="modal-contenido" (click)="$event.stopPropagation()">
+      <h2>{{ titulo }}</h2>
+      <p>{{ mensaje }}</p>
+
+      <div class="modal-acciones">
+        <button class="btn-cancelar" (click)="onCancelar()">{{ textoBtnCancelar }}</button>
+        <button class="btn-confirmar" (click)="onConfirmar()">{{ textoBtnConfirmar }}</button>
+      </div>
+    </div>
+  </div>
+}

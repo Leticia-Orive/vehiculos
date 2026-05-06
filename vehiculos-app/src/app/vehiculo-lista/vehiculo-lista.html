@@ -1,6 +1,17 @@
 <div class="container">
   <h1>Gestión de Vehículos</h1>
 
+  <!-- Modal de confirmación -->
+  <app-modal-confirmacion
+    [mostrar]="mostrarModalConfirmacion"
+    titulo="Eliminar vehículo"
+    [mensaje]="'¿Estás segura de que deseas eliminar ' + (vehiculoAEliminar?.marca || '') + ' ' + (vehiculoAEliminar?.modelo || '') + '?'"
+    textoBtnConfirmar="Sí, eliminar"
+    textoBtnCancelar="Cancelar"
+    (confirmar)="confirmarEliminacion()"
+    (cancelar)="cancelarEliminacion()">
+  </app-modal-confirmacion>
+
   <div class="filtros">
     <button (click)="setFiltro('')" [class.activo]="filtroTipo === ''">Todos</button>
     <button (click)="setFiltro('auto')" [class.activo]="filtroTipo === 'auto'">Autos</button>
