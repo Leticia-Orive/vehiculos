@@ -26,8 +26,10 @@ export class VehiculoDetalle implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Lee el id de la URL y carga el vehículo correspondiente
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.vehiculo = this.vehiculoService.getVehiculoPorId(id);
+    // Comprueba si el usuario logueado es admin para mostrar botón de editar
     this.esAdmin = this.authService.esAdmin();
   }
 
@@ -40,6 +42,7 @@ export class VehiculoDetalle implements OnInit {
     }
   }
 
+  // Navega a la vista del carrito sin añadir nada
   irAlCarrito(): void {
     this.router.navigate(['/carrito']);
   }

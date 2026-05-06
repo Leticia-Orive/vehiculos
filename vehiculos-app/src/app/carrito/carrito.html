@@ -2,6 +2,7 @@
   <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
   <h1>🛒 Mi Carrito</h1>
 
+  <!-- Si no hay ítems se muestra mensaje vacío -->
   @if (items.length === 0) {
     <!-- Carrito vacío -->
     <div class="carrito-vacio">
@@ -9,7 +10,7 @@
       <a routerLink="/" class="btn-guardar">Ver vehículos</a>
     </div>
   } @else {
-    <!-- Lista de ítems -->
+    <!-- Lista de ítems con imagen, info, control de cantidad y subtotal -->
     <div class="carrito-items">
       @for (item of items; track item.vehiculo.id) {
         <div class="carrito-item">
@@ -19,6 +20,7 @@
             <p class="item-precio">{{ item.vehiculo.precio | currency:'USD' }} c/u</p>
             <span class="badge badge-{{ item.vehiculo.tipo }}">{{ item.vehiculo.tipo }}</span>
           </div>
+          <!-- Cambia la cantidad; si llega a 0 el servicio elimina el ítem -->
           <div class="item-controles">
             <label>Cantidad</label>
             <input
@@ -28,9 +30,11 @@
               (change)="cambiarCantidad(item.vehiculo.id, $event)"
             />
           </div>
+          <!-- Subtotal = precio × cantidad -->
           <div class="item-subtotal">
             <span>{{ item.vehiculo.precio * item.cantidad | currency:'USD' }}</span>
           </div>
+          <!-- Elimina solo este ítem del carrito -->
           <button class="btn-eliminar" (click)="eliminar(item.vehiculo.id)" title="Eliminar">✕</button>
         </div>
       }
@@ -42,6 +46,7 @@
         <span>Total:</span>
         <strong>{{ total | currency:'USD' }}</strong>
       </div>
+      <!-- Navega al checkout para confirmar la compra -->
       <button class="btn-comprar" (click)="irACheckout()">Proceder al pago →</button>
     </div>
   }

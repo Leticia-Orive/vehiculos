@@ -1,21 +1,24 @@
 <div class="container">
 
-  <!-- Pantalla de éxito tras confirmar compra -->
+  <!-- Pantalla de éxito: se muestra tras confirmar la compra -->
   @if (pedidoCompletado) {
     <div class="exito-card">
       <div class="exito-icono">✅</div>
       <h2>¡Compra realizada con éxito!</h2>
+      <!-- El nombre viene del AuthService para personalizar el mensaje -->
       <p>Gracias, <strong>{{ nombreUsuario }}</strong>. Tu pedido ha sido registrado.</p>
+      <!-- Número de pedido generado con timestamp en el componente -->
       <p class="numero-pedido">Nº de pedido: <strong>{{ numeroPedido }}</strong></p>
       <button class="btn-inicio" (click)="irAlInicio()">Volver al inicio</button>
     </div>
   } @else {
-    <!-- Resumen del pedido -->
+    <!-- Vista de revisión del pedido antes de confirmar -->
     <a routerLink="/carrito" class="btn-volver">&#8592; Volver al carrito</a>
     <h1>Resumen del pedido</h1>
 
+    <!-- Grid de dos columnas: ítems a la izquierda, panel de pago a la derecha -->
     <div class="checkout-grid">
-      <!-- Lista de vehículos -->
+      <!-- Lista de vehículos del carrito -->
       <div class="pedido-items">
         @for (item of items; track item.vehiculo.id) {
           <div class="pedido-item">
@@ -25,12 +28,13 @@
               <span>{{ item.vehiculo.color }} · {{ item.vehiculo.anio }}</span>
               <span>Cantidad: {{ item.cantidad }}</span>
             </div>
+            <!-- Subtotal por línea: precio × cantidad -->
             <span class="pedido-precio">{{ item.vehiculo.precio * item.cantidad | currency:'USD' }}</span>
           </div>
         }
       </div>
 
-      <!-- Panel de pago -->
+      <!-- Panel lateral: datos del comprador, total y botón de confirmación -->
       <div class="pago-panel">
         <h3>Datos del comprador</h3>
         <p><strong>{{ nombreUsuario }}</strong></p>
@@ -40,6 +44,7 @@
           <strong>{{ total | currency:'USD' }}</strong>
         </div>
         <p class="aviso-pago">💳 Pago simulado — no se realizará ningún cargo real</p>
+        <!-- Al confirmar: genera número de pedido y vacía el carrito -->
         <button class="btn-confirmar-pago" (click)="confirmarCompra()">Confirmar compra</button>
       </div>
     </div>

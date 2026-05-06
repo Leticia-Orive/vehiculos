@@ -23,6 +23,7 @@ export class CheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Obtiene el snapshot del carrito en el momento de entrar al checkout
     this.items = this.carritoService.items;
     this.nombreUsuario = this.authService.obtenerNombreUsuario();
 
@@ -32,6 +33,7 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
+  // Calcula el total del pedido delegando en el servicio del carrito
   get total(): number {
     return this.carritoService.total;
   }

@@ -30,6 +30,7 @@ export class CarritoComponent implements OnInit {
     this.carritoService.cambiarCantidad(vehiculoId, Number(input.value));
   }
 
+  // Calcula el precio total sumando precio × cantidad de cada ítem
   get total(): number {
     return this.carritoService.total;
   }

@@ -1,9 +1,11 @@
 <div class="container">
   <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
 
+  <!-- El título cambia dinámicamente según el modo: añadir o editar -->
   <div class="form-card">
     <h2>{{ titulo }}</h2>
 
+    <!-- Mensajes de validación y resultado -->
     @if (errorMensaje) {
       <div class="error-mensaje">{{ errorMensaje }}</div>
     }
@@ -11,6 +13,7 @@
       <div class="exito-mensaje">{{ exitoMensaje }}</div>
     }
 
+    <!-- ngSubmit llama a onGuardar() que valida y envía al servicio -->
     <form (ngSubmit)="onGuardar()">
       <div class="form-grid">
         <!-- Marca -->
