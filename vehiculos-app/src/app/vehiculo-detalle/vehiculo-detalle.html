@@ -18,7 +18,28 @@
           }
         </li>
       </ul>
-      <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+
+      <!-- Mensaje de confirmación al añadir al carrito -->
+      @if (mensajeCarrito) {
+        <div class="msg-carrito">{{ mensajeCarrito }}</div>
+      }
+
+      <div class="detalle-acciones">
+        <!-- Izquierda: volver -->
+        <a routerLink="/" class="btn-volver">&#8592; Volver</a>
+
+        <!-- Derecha: acciones según disponibilidad y rol -->
+        <div class="acciones-grupo">
+          @if (vehiculo.disponible) {
+            <button class="btn-carrito-add" (click)="agregarAlCarrito()">🛒 Añadir al carrito</button>
+            <button class="btn-comprar" (click)="comprarAhora()">⚡ Comprar ahora</button>
+            <button class="btn-ir-carrito" (click)="irAlCarrito()">Ver carrito</button>
+          }
+          @if (esAdmin) {
+            <a [routerLink]="['/vehiculo', vehiculo.id, 'editar']" class="btn-editar">&#9998; Editar</a>
+          }
+        </div>
+      </div>
     </div>
   } @else {
     <p>Vehículo no encontrado.</p>

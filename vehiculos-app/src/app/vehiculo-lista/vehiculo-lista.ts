@@ -5,6 +5,7 @@ import { VehiculoService } from '../vehiculo';
 import { Vehiculo } from '../vehiculo.model';
 import { ModalConfirmacion } from '../modal-confirmacion/modal-confirmacion';
 import { AuthService } from '../auth.service';
+import { CarritoService } from '../carrito.service';
 
 @Component({
   selector: 'app-vehiculo-lista',
@@ -22,21 +23,39 @@ export class VehiculoLista implements OnInit {
 
   // Datos del usuario logueado
   nombreUsuario: string = '';
+  esAdmin: boolean = false;
 
   constructor(
     private vehiculoService: VehiculoService,
     private authService: AuthService,
+    private carritoService: CarritoService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.vehiculos = this.vehiculoService.getVehiculos();
     this.nombreUsuario = this.authService.obtenerNombreUsuario();
+    this.esAdmin = this.authService.esAdmin();
   }
 
   get vehiculosFiltrados(): Vehiculo[] {
     if (!this.filtroTipo) return this.vehiculos;
     return this.vehiculos.filter(v => v.tipo === this.filtroTipo);
+  }
+
+  // Número de ítems en el carrito para mostrar en el badge
+  get cantidadCarrito(): number {
+    return this.carritoService.cantidadTotal;
+  }
+
+  // Añade el vehículo al carrito
+  agregarAlCarrito(vehiculo: Vehiculo): void {
+    this.carritoService.agregar(vehiculo);
+  }
+
+  // Navega a la vista del carrito
+  irAlCarrito(): void {
+    this.router.navigate(['/carrito']);
   }
 
   // Cierra sesión y redirige al login

@@ -75,4 +75,9 @@ export class AuthService {
   obtenerNombreUsuario(): string {
     return localStorage.getItem('nombre_usuario') || 'Usuario';
   }
+
+  // Indica si el usuario logueado es administrador
+  esAdmin(): boolean {
+    return localStorage.getItem('usuario_autenticado') === 'admin';
+  }
 }

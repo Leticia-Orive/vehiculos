@@ -1,0 +1,83 @@
+<div class="container">
+  <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+
+  <div class="form-card">
+    <h2>{{ titulo }}</h2>
+
+    @if (errorMensaje) {
+      <div class="error-mensaje">{{ errorMensaje }}</div>
+    }
+    @if (exitoMensaje) {
+      <div class="exito-mensaje">{{ exitoMensaje }}</div>
+    }
+
+    <form (ngSubmit)="onGuardar()">
+      <div class="form-grid">
+        <!-- Marca -->
+        <div class="form-grupo">
+          <label for="marca">Marca *</label>
+          <input id="marca" type="text" [(ngModel)]="vehiculo.marca" name="marca" placeholder="Ej: Toyota" />
+        </div>
+
+        <!-- Modelo -->
+        <div class="form-grupo">
+          <label for="modelo">Modelo *</label>
+          <input id="modelo" type="text" [(ngModel)]="vehiculo.modelo" name="modelo" placeholder="Ej: Corolla" />
+        </div>
+
+        <!-- Año -->
+        <div class="form-grupo">
+          <label for="anio">Año *</label>
+          <input id="anio" type="number" [(ngModel)]="vehiculo.anio" name="anio" placeholder="Ej: 2024" />
+        </div>
+
+        <!-- Color -->
+        <div class="form-grupo">
+          <label for="color">Color *</label>
+          <input id="color" type="text" [(ngModel)]="vehiculo.color" name="color" placeholder="Ej: Blanco" />
+        </div>
+
+        <!-- Precio -->
+        <div class="form-grupo">
+          <label for="precio">Precio (USD) *</label>
+          <input id="precio" type="number" [(ngModel)]="vehiculo.precio" name="precio" placeholder="Ej: 25000" />
+        </div>
+
+        <!-- Tipo -->
+        <div class="form-grupo">
+          <label for="tipo">Tipo *</label>
+          <select id="tipo" [(ngModel)]="vehiculo.tipo" name="tipo">
+            <option value="auto">Auto</option>
+            <option value="camioneta">Camioneta</option>
+            <option value="moto">Moto</option>
+            <option value="camion">Camión</option>
+          </select>
+        </div>
+
+        <!-- Imagen (URL o ruta local) -->
+        <div class="form-grupo form-grupo-ancho">
+          <label for="imagen">URL de imagen *</label>
+          <input id="imagen" type="text" [(ngModel)]="vehiculo.imagen" name="imagen" placeholder="Ej: /vehiculos/mi-auto.jpg" />
+        </div>
+
+        <!-- Disponible -->
+        <div class="form-grupo form-grupo-check">
+          <label>
+            <input type="checkbox" [(ngModel)]="vehiculo.disponible" name="disponible" />
+            Disponible para venta
+          </label>
+        </div>
+      </div>
+
+      <!-- Preview de imagen -->
+      @if (vehiculo.imagen) {
+        <div class="imagen-preview">
+          <p>Vista previa:</p>
+          <img [src]="vehiculo.imagen" [alt]="vehiculo.marca" />
+        </div>
+      }
+
+      <button type="submit" class="btn-guardar">{{ titulo }}</button>
+    </form>
+  </div>
+</div>

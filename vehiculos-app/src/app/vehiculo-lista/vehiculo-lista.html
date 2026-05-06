@@ -1,13 +1,31 @@
 <div class="container">
-  <!-- Header con info del usuario y botón de logout -->
+  <!-- Header con info del usuario, carrito y botón de logout -->
   <div class="header-usuario">
     <div class="usuario-info">
       <span class="usuario-nombre">👤 {{ nombreUsuario }}</span>
+      @if (esAdmin) {
+        <span class="badge-admin">Admin</span>
+      }
     </div>
-    <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+    <div class="header-acciones">
+      <!-- Botón carrito con badge de cantidad -->
+      <button class="btn-carrito" (click)="irAlCarrito()">
+        🛒 Carrito
+        @if (cantidadCarrito > 0) {
+          <span class="badge-carrito">{{ cantidadCarrito }}</span>
+        }
+      </button>
+      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+    </div>
   </div>
 
-  <h1>Gestión de Vehículos</h1>
+  <div class="titulo-row">
+    <h1>Gestión de Vehículos</h1>
+    <!-- Solo el admin puede añadir vehículos -->
+    @if (esAdmin) {
+      <a routerLink="/vehiculo/nuevo" class="btn-nuevo">+ Añadir vehículo</a>
+    }
+  </div>
 
   <!-- Modal de confirmación -->
   <app-modal-confirmacion
@@ -65,8 +83,17 @@
             }
           </td>
           <td>
+            <!-- Ver: disponible para todos -->
             <a [routerLink]="['/vehiculo', v.id]" class="btn-ver">Ver</a>
-            <button (click)="eliminar(v.id)" class="btn-eliminar">Eliminar</button>
+            <!-- Añadir al carrito: solo si está disponible -->
+            @if (v.disponible) {
+              <button (click)="agregarAlCarrito(v)" class="btn-carrito-add">🛒 Añadir</button>
+            }
+            <!-- Editar y Eliminar: solo admin -->
+            @if (esAdmin) {
+              <a [routerLink]="['/vehiculo', v.id, 'editar']" class="btn-editar">Editar</a>
+              <button (click)="eliminar(v.id)" class="btn-eliminar">Eliminar</button>
+            }
           </td>
         </tr>
       } @empty {

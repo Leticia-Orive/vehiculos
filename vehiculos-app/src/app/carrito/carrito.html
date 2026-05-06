@@ -1,0 +1,48 @@
+<div class="container">
+  <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+  <h1>🛒 Mi Carrito</h1>
+
+  @if (items.length === 0) {
+    <!-- Carrito vacío -->
+    <div class="carrito-vacio">
+      <p>Tu carrito está vacío.</p>
+      <a routerLink="/" class="btn-guardar">Ver vehículos</a>
+    </div>
+  } @else {
+    <!-- Lista de ítems -->
+    <div class="carrito-items">
+      @for (item of items; track item.vehiculo.id) {
+        <div class="carrito-item">
+          <img [src]="item.vehiculo.imagen" [alt]="item.vehiculo.marca + ' ' + item.vehiculo.modelo" />
+          <div class="item-info">
+            <h3>{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</h3>
+            <p class="item-precio">{{ item.vehiculo.precio | currency:'USD' }} c/u</p>
+            <span class="badge badge-{{ item.vehiculo.tipo }}">{{ item.vehiculo.tipo }}</span>
+          </div>
+          <div class="item-controles">
+            <label>Cantidad</label>
+            <input
+              type="number"
+              [value]="item.cantidad"
+              min="1"
+              (change)="cambiarCantidad(item.vehiculo.id, $event)"
+            />
+          </div>
+          <div class="item-subtotal">
+            <span>{{ item.vehiculo.precio * item.cantidad | currency:'USD' }}</span>
+          </div>
+          <button class="btn-eliminar" (click)="eliminar(item.vehiculo.id)" title="Eliminar">✕</button>
+        </div>
+      }
+    </div>
+
+    <!-- Total y checkout -->
+    <div class="carrito-resumen">
+      <div class="total">
+        <span>Total:</span>
+        <strong>{{ total | currency:'USD' }}</strong>
+      </div>
+      <button class="btn-comprar" (click)="irACheckout()">Proceder al pago →</button>
+    </div>
+  }
+</div>

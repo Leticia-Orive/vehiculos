@@ -57,6 +57,7 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   td {
     padding: 0.7rem 1rem;
     border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
   }
 
   tr:hover td { background: #f0f4ff; }

@@ -32,5 +32,13 @@ export class VehiculoService {
   eliminarVehiculo(id: number): void {
     this.vehiculos = this.vehiculos.filter(v => v.id !== id);
   }
+
+  // Actualiza los datos de un vehículo existente
+  actualizarVehiculo(vehiculoActualizado: Vehiculo): void {
+    const idx = this.vehiculos.findIndex(v => v.id === vehiculoActualizado.id);
+    if (idx !== -1) {
+      this.vehiculos[idx] = { ...vehiculoActualizado };
+    }
+  }
 }
 
