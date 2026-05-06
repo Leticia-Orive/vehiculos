@@ -3,6 +3,19 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { CarritoService, ItemCarrito } from '../carrito.service';
 import { AuthService } from '../auth.service';
+import { FinanciacionConfigService, FinanciacionConfigState } from '../financiacion-config.service';
+import { Vehiculo } from '../vehiculo.model';
+
+interface DesgloseDescuentoTipo {
+  claveModelo: string;
+  marca: string;
+  modelo: string;
+  tipo: Vehiculo['tipo'];
+  cantidad: number;
+  descuentoUnitario: number;
+  descuentoTotal: number;
+  cantidadMantenimientos: number;
+}
 
 @Component({
   selector: 'app-checkout',
@@ -22,22 +35,20 @@ export class CheckoutComponent implements OnInit {
   pagoMensual: number = 0;
   entradaContado: number = 0;
   mensajeErrorFinanciacion: string = '';
-
-  // Costes fijos considerados para el descuento al financiar
-  private readonly descuentoSeguro: number = 850;
-  private readonly costoMantenimiento: number = 300;
-  private readonly cantidadMantenimientos: number = 4;
+  configFinanciacion: FinanciacionConfigState | null = null;
 
   constructor(
     private carritoService: CarritoService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private financiacionConfigService: FinanciacionConfigService
   ) {}
 
   ngOnInit(): void {
     // Obtiene el snapshot del carrito en el momento de entrar al checkout
     this.items = this.carritoService.items;
     this.nombreUsuario = this.authService.obtenerNombreUsuario();
+    this.configFinanciacion = this.financiacionConfigService.getConfig();
 
     // Si el carrito está vacío, redirige al inicio
     if (this.items.length === 0) {
@@ -52,7 +63,44 @@ export class CheckoutComponent implements OnInit {
 
   // Descuentos aplicados al importe a financiar
   get totalDescuentosFinanciado(): number {
-    return this.descuentoSeguro + (this.costoMantenimiento * this.cantidadMantenimientos);
+    return this.items.reduce((acumulado, item) => {
+      const regla = this.obtenerReglaFinanciacion(item.vehiculo);
+      const descuentoUnitario = regla.descuentoSeguro + (regla.costoMantenimiento * regla.cantidadMantenimientos);
+      return acumulado + (descuentoUnitario * item.cantidad);
+    }, 0);
+  }
+
+  // Desglose por modelo exacto para mostrar de forma transparente cómo se calcula el descuento
+  get desgloseDescuentos(): DesgloseDescuentoTipo[] {
+    const acumulado: Record<string, DesgloseDescuentoTipo> = {};
+
+    for (const item of this.items) {
+      const regla = this.obtenerReglaFinanciacion(item.vehiculo);
+      const descuentoUnitario = regla.descuentoSeguro + (regla.costoMantenimiento * regla.cantidadMantenimientos);
+      const claveModelo = this.claveModelo(item.vehiculo);
+
+      if (!acumulado[claveModelo]) {
+        acumulado[claveModelo] = {
+          claveModelo,
+          marca: item.vehiculo.marca,
+          modelo: item.vehiculo.modelo,
+          tipo: item.vehiculo.tipo,
+          cantidad: 0,
+          descuentoUnitario,
+          descuentoTotal: 0,
+          cantidadMantenimientos: regla.cantidadMantenimientos,
+        };
+      }
+
+      const fila = acumulado[claveModelo];
+
+      fila.cantidad += item.cantidad;
+      fila.descuentoUnitario = descuentoUnitario;
+      fila.cantidadMantenimientos = regla.cantidadMantenimientos;
+      fila.descuentoTotal += descuentoUnitario * item.cantidad;
+    }
+
+    return Object.values(acumulado);
   }
 
   // Capital final que queda por financiar tras entrada y descuentos
@@ -73,6 +121,22 @@ export class CheckoutComponent implements OnInit {
   // Etiqueta legible para la forma de pago elegida
   get formaPagoLabel(): string {
     return this.formaPago === 'financiado' ? 'Financiado' : 'Al contado';
+  }
+
+  // Texto amigable para mostrar la gama/tipo en el resumen
+  etiquetaTipo(tipo: Vehiculo['tipo']): string {
+    switch (tipo) {
+      case 'auto':
+        return 'Auto';
+      case 'camioneta':
+        return 'Camioneta';
+      case 'moto':
+        return 'Moto';
+      case 'camion':
+        return 'Camión';
+      default:
+        return tipo;
+    }
   }
 
   // Ayuda de UX: desactiva el botón de confirmar si falta completar financiación
@@ -131,6 +195,21 @@ export class CheckoutComponent implements OnInit {
     }
 
     return true;
+  }
+
+  // Obtiene la regla de descuento priorizando modelo exacto sobre tipo
+  private obtenerReglaFinanciacion(vehiculo: Vehiculo) {
+    const config = this.configFinanciacion ?? this.financiacionConfigService.getConfig();
+    const reglaPorModelo = config.porModelo[this.claveModelo(vehiculo)];
+    if (reglaPorModelo) {
+      return reglaPorModelo;
+    }
+
+    return config.porTipo[vehiculo.tipo] ?? config.base;
+  }
+
+  private claveModelo(vehiculo: Vehiculo): string {
+    return this.financiacionConfigService.buildModelKey(vehiculo.marca, vehiculo.modelo);
   }
 
   // Confirma la compra, vacía el carrito y muestra confirmación

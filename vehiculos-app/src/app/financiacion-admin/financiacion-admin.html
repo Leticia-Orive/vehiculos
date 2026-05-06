@@ -1,0 +1,111 @@
+<div class="container">
+  <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
+
+  <div class="admin-card">
+    <h2>Configuración de financiación</h2>
+    <p class="subtitulo">Administra reglas base, por tipo y por modelo exacto.</p>
+
+    @if (mensaje) {
+      <p class="msg-ok">{{ mensaje }}</p>
+    }
+    @if (error) {
+      <p class="msg-error">{{ error }}</p>
+    }
+    @if (advertencias.length > 0) {
+      <div class="msg-warning">
+        <strong>Advertencias:</strong>
+        @for (aviso of advertencias; track aviso) {
+          <p>{{ aviso }}</p>
+        }
+      </div>
+    }
+
+    @if (config) {
+      <section class="bloque">
+        <h3>Regla base</h3>
+        <div class="grid-regla">
+          <label>
+            Seguro
+            <input type="number" min="0" max="20000" step="1" [(ngModel)]="config.base.descuentoSeguro" />
+          </label>
+          <label>
+            Mantenimiento
+            <input type="number" min="0" max="8000" step="1" [(ngModel)]="config.base.costoMantenimiento" />
+          </label>
+          <label>
+            Cant. mantenimientos
+            <input type="number" min="0" max="24" step="1" [(ngModel)]="config.base.cantidadMantenimientos" />
+          </label>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <h3>Reglas por tipo</h3>
+        @for (tipo of tiposVehiculo; track tipo) {
+          <div class="tipo-row">
+            <h4>{{ etiquetaTipo(tipo) }}</h4>
+            <div class="grid-regla">
+              <label>
+                Seguro
+                <input type="number" min="0" max="20000" step="1" [(ngModel)]="config.porTipo[tipo].descuentoSeguro" />
+              </label>
+              <label>
+                Mantenimiento
+                <input type="number" min="0" max="8000" step="1" [(ngModel)]="config.porTipo[tipo].costoMantenimiento" />
+              </label>
+              <label>
+                Cant. mantenimientos
+                <input type="number" min="0" max="24" step="1" [(ngModel)]="config.porTipo[tipo].cantidadMantenimientos" />
+              </label>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="bloque">
+        <h3>Reglas por modelo exacto</h3>
+        <p class="help">Se usan con prioridad sobre las reglas por tipo.</p>
+
+        <div class="modelo-add">
+          <input type="text" placeholder="Marca (ej: Toyota)" [(ngModel)]="nuevaMarca" />
+          <input type="text" placeholder="Modelo (ej: Corolla)" [(ngModel)]="nuevoModelo" />
+          <button type="button" (click)="agregarReglaModelo()">Añadir regla</button>
+        </div>
+
+        @if (reglasModelo.length === 0) {
+          <p>No hay reglas por modelo.</p>
+        } @else {
+          @for (fila of reglasModelo; track fila.key) {
+            <div class="modelo-row">
+              <div class="modelo-head">
+                <strong>{{ fila.marca }} {{ fila.modelo }}</strong>
+                <small>{{ fila.key }}</small>
+                <button type="button" class="btn-borrar" (click)="eliminarReglaModelo(fila.key)">Eliminar</button>
+              </div>
+
+              <div class="grid-regla">
+                <label>
+                  Seguro
+                  <input type="number" min="0" max="20000" step="1" [(ngModel)]="fila.regla.descuentoSeguro" />
+                </label>
+                <label>
+                  Mantenimiento
+                  <input type="number" min="0" max="8000" step="1" [(ngModel)]="fila.regla.costoMantenimiento" />
+                </label>
+                <label>
+                  Cant. mantenimientos
+                  <input type="number" min="0" max="24" step="1" [(ngModel)]="fila.regla.cantidadMantenimientos" />
+                </label>
+              </div>
+            </div>
+          }
+        }
+      </section>
+
+      <div class="acciones-finales">
+        <button type="button" class="btn-guardar" (click)="guardarCambios()">Guardar cambios</button>
+        <button type="button" class="btn-reset" (click)="restaurarPorDefecto()">Restaurar por defecto</button>
+      </div>
+    }
+  </div>
+</div>

@@ -23,7 +23,10 @@
     <h1>Gestión de Vehículos</h1>
     <!-- Solo el admin puede añadir vehículos -->
     @if (esAdmin) {
-      <a routerLink="/vehiculo/nuevo" class="btn-nuevo">+ Añadir vehículo</a>
+      <div class="admin-acciones">
+        <a routerLink="/admin/financiacion" class="btn-config">Config. financiación</a>
+        <a routerLink="/vehiculo/nuevo" class="btn-nuevo">+ Añadir vehículo</a>
+      </div>
     }
   </div>
 

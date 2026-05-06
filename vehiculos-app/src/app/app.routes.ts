@@ -6,6 +6,7 @@ import { RegisterComponent } from './register/register';
 import { VehiculoFormComponent } from './vehiculo-form/vehiculo-form';
 import { CarritoComponent } from './carrito/carrito';
 import { CheckoutComponent } from './checkout/checkout';
+import { FinanciacionAdminComponent } from './financiacion-admin/financiacion-admin';
 import { authGuard } from './auth.guard';
 import { adminGuard } from './admin.guard';
 
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'vehiculo/:id/editar', component: VehiculoFormComponent, canActivate: [authGuard, adminGuard] },
   { path: 'carrito', component: CarritoComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
+  { path: 'admin/financiacion', component: FinanciacionAdminComponent, canActivate: [authGuard, adminGuard] },
 
   // Redireccion por defecto
   { path: '**', redirectTo: '/login' }

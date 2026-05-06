@@ -96,6 +96,29 @@
   h1 { margin-bottom: 0; }
 }
 
+.admin-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-config {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  background: #455a64;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #263238;
+    transform: translateY(-1px);
+  }
+}
+
 .btn-nuevo {
   display: inline-block;
   padding: 0.6rem 1.4rem;

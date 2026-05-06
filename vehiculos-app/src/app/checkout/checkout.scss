@@ -172,6 +172,25 @@ h1 { margin-bottom: 1.5rem; }
   strong {
     color: #1a237e;
   }
+
+  .financiacion-desglose {
+    margin-top: 0.35rem;
+    display: block;
+
+    span {
+      display: block;
+      color: #303a72;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #4f5783;
+      line-height: 1.35;
+    }
+  }
 }
 
 .error-financiacion {
