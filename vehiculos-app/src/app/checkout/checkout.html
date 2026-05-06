@@ -10,6 +10,13 @@
       <!-- Número de pedido generado con timestamp en el componente -->
       <p class="numero-pedido">Nº de pedido: <strong>{{ numeroPedido }}</strong></p>
       <p class="forma-pago-exito">Forma de pago: <strong>{{ formaPagoLabel }}</strong></p>
+      @if (formaPago === 'financiado') {
+        <p>Entrada al contado: <strong>{{ entradaContado | currency:'USD' }}</strong></p>
+        <p>Pago mensual: <strong>{{ pagoMensual | currency:'USD' }}</strong></p>
+        <p>Descuentos aplicados (seguro + 4 mantenimientos): <strong>{{ totalDescuentosFinanciado | currency:'USD' }}</strong></p>
+        <p>Saldo financiado: <strong>{{ saldoFinanciar | currency:'USD' }}</strong></p>
+        <p>Meses estimados: <strong>{{ mesesEstimados }}</strong></p>
+      }
       <button class="btn-inicio" (click)="irAlInicio()">Volver al inicio</button>
     </div>
   } @else {
@@ -51,7 +58,7 @@
               type="radio"
               name="formaPago"
               [checked]="formaPago === 'contado'"
-              (change)="formaPago = 'contado'"
+              (change)="seleccionarFormaPago('contado')"
             />
             Al contado
           </label>
@@ -60,11 +67,53 @@
               type="radio"
               name="formaPago"
               [checked]="formaPago === 'financiado'"
-              (change)="formaPago = 'financiado'"
+              (change)="seleccionarFormaPago('financiado')"
             />
             Financiado
           </label>
+
+          @if (formaPago === 'financiado') {
+            <div class="financiacion-campos">
+              <label for="pagoMensual">¿Cuánto quieres pagar al mes?</label>
+              <input
+                id="pagoMensual"
+                type="number"
+                min="1"
+                step="1"
+                [value]="pagoMensual"
+                (input)="actualizarPagoMensual($event)"
+              />
+
+              <label for="entradaContado">¿Cuánto quieres ingresar al contado?</label>
+              <input
+                id="entradaContado"
+                type="number"
+                min="0"
+                step="1"
+                [value]="entradaContado"
+                (input)="actualizarEntradaContado($event)"
+              />
+
+              <div class="financiacion-resumen">
+                <div>
+                  <span>Descuento seguro + 4 mantenimientos:</span>
+                  <strong>{{ totalDescuentosFinanciado | currency:'USD' }}</strong>
+                </div>
+                <div>
+                  <span>Saldo a financiar:</span>
+                  <strong>{{ saldoFinanciar | currency:'USD' }}</strong>
+                </div>
+                <div>
+                  <span>Meses estimados:</span>
+                  <strong>{{ mesesEstimados }}</strong>
+                </div>
+              </div>
+            </div>
+          }
         </div>
+        @if (mensajeErrorFinanciacion) {
+          <p class="error-financiacion">{{ mensajeErrorFinanciacion }}</p>
+        }
         <p class="aviso-pago">💳 Pago simulado — no se realizará ningún cargo real</p>
         <!-- Al confirmar: genera número de pedido y vacía el carrito -->
         <button class="btn-confirmar-pago" (click)="confirmarCompra()">Confirmar compra</button>
