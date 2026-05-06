@@ -27,6 +27,16 @@ export class AuthService {
 
   constructor() {}
 
+  // Registra un nuevo usuario; retorna error si el username ya existe
+  registrar(username: string, password: string, nombre: string): { ok: boolean; error?: string } {
+    const existe = this.usuariosValidos.find(u => u.username === username);
+    if (existe) {
+      return { ok: false, error: 'El usuario ya existe' };
+    }
+    this.usuariosValidos.push({ username, password, nombre });
+    return { ok: true };
+  }
+
   // Intenta login con usuario y contraseña
   login(username: string, password: string): boolean {
     const usuario = this.usuariosValidos.find(

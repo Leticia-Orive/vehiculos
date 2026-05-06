@@ -1,0 +1,85 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Crear cuenta</h1>
+    <p class="login-subtitulo">Rellena los datos para registrarte</p>
+
+    <!-- Mensaje de error -->
+    @if (errorMensaje) {
+      <div class="error-mensaje">{{ errorMensaje }}</div>
+    }
+
+    <!-- Mensaje de éxito -->
+    @if (exitoMensaje) {
+      <div class="exito-mensaje">{{ exitoMensaje }}</div>
+    }
+
+    <form (ngSubmit)="onRegistrar()">
+      <!-- Nombre completo -->
+      <div class="form-grupo">
+        <label for="nombre">Nombre completo</label>
+        <input
+          type="text"
+          id="nombre"
+          [(ngModel)]="nombre"
+          name="nombre"
+          placeholder="Ej: María García"
+          [disabled]="cargando"
+          autofocus
+        />
+      </div>
+
+      <!-- Nombre de usuario -->
+      <div class="form-grupo">
+        <label for="username">Usuario</label>
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Mínimo 3 caracteres"
+          [disabled]="cargando"
+        />
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-grupo">
+        <label for="password">Contraseña</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Mínimo 6 caracteres"
+          [disabled]="cargando"
+        />
+      </div>
+
+      <!-- Confirmar contraseña -->
+      <div class="form-grupo">
+        <label for="confirmarPassword">Confirmar contraseña</label>
+        <input
+          type="password"
+          id="confirmarPassword"
+          [(ngModel)]="confirmarPassword"
+          name="confirmarPassword"
+          placeholder="Repite tu contraseña"
+          [disabled]="cargando"
+        />
+      </div>
+
+      <!-- Botón de registro -->
+      <button type="submit" class="btn-login" [disabled]="cargando">
+        @if (cargando) {
+          Registrando...
+        } @else {
+          Crear cuenta
+        }
+      </button>
+    </form>
+
+    <!-- Link al login -->
+    <div class="link-alternativo">
+      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+    </div>
+  </div>
+</div>

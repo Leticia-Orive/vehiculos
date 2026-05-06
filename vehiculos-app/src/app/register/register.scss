@@ -1,0 +1,29 @@
+// Los estilos base (login-container, login-card, form-grupo, btn-login, error-mensaje)
+// se comparten con el login desde styles.scss
+
+.exito-mensaje {
+  background: #c8e6c9;
+  color: #2e7d32;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  border-left: 4px solid #2e7d32;
+}
+
+.link-alternativo {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+
+  a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
