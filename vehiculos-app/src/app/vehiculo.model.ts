@@ -2,6 +2,7 @@ export interface Vehiculo {
   id: number;
   marca: string;
   modelo: string;
+  // Ruta pública de la imagen (se sirve desde /public).
   imagen: string;
   anio: number;
   color: string;

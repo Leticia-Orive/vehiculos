@@ -29,6 +29,7 @@
         <tr>
           <td>{{ v.id }}</td>
           <td>
+            <!-- Miniatura usando la ruta local guardada en v.imagen -->
             <img class="vehiculo-miniatura" [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" loading="lazy" />
           </td>
           <td>{{ v.marca }}</td>

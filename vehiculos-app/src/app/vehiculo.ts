@@ -5,6 +5,7 @@ import { Vehiculo } from './vehiculo.model';
   providedIn: 'root',
 })
 export class VehiculoService {
+  // Datos en memoria para la demo; las imágenes apuntan a archivos locales en /public/vehiculos.
   private vehiculos: Vehiculo[] = [
     { id: 1, marca: 'Toyota', modelo: 'Corolla', imagen: '/vehiculos/toyota-corolla.jpg', anio: 2024, color: 'Blanco', precio: 25000, tipo: 'auto', disponible: true },
     { id: 2, marca: 'Ford', modelo: 'F-150', imagen: '/vehiculos/ford-f150.jpg', anio: 2023, color: 'Negro', precio: 45000, tipo: 'camioneta', disponible: true },
@@ -23,6 +24,7 @@ export class VehiculoService {
   }
 
   agregarVehiculo(vehiculo: Vehiculo): void {
+    // Genera un ID incremental a partir del mayor ID actual.
     const nuevoId = Math.max(...this.vehiculos.map(v => v.id)) + 1;
     this.vehiculos.push({ ...vehiculo, id: nuevoId });
   }
