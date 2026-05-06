@@ -11,15 +11,19 @@ import { AuthService } from '../auth.service';
   styleUrl: './checkout.scss',
 })
 export class CheckoutComponent implements OnInit {
+  // Estado general de la pantalla
   items: ItemCarrito[] = [];
   nombreUsuario: string = '';
   pedidoCompletado: boolean = false;
   numeroPedido: string = '';
+
+  // Datos de forma de pago
   formaPago: 'contado' | 'financiado' = 'contado';
   pagoMensual: number = 0;
   entradaContado: number = 0;
   mensajeErrorFinanciacion: string = '';
 
+  // Costes fijos considerados para el descuento al financiar
   private readonly descuentoSeguro: number = 850;
   private readonly costoMantenimiento: number = 300;
   private readonly cantidadMantenimientos: number = 4;
@@ -71,23 +75,36 @@ export class CheckoutComponent implements OnInit {
     return this.formaPago === 'financiado' ? 'Financiado' : 'Al contado';
   }
 
+  // Ayuda de UX: desactiva el botón de confirmar si falta completar financiación
+  get puedeConfirmarCompra(): boolean {
+    if (this.formaPago !== 'financiado') {
+      return true;
+    }
+
+    return this.pagoMensual > 0 && this.entradaContado <= this.total && this.saldoFinanciar > 0;
+  }
+
+  // Convierte el input a número y limpia errores al editar
   actualizarPagoMensual(event: Event): void {
     const valor = Number((event.target as HTMLInputElement).value);
     this.pagoMensual = Number.isFinite(valor) && valor > 0 ? valor : 0;
     this.mensajeErrorFinanciacion = '';
   }
 
+  // Convierte el input a número y limpia errores al editar
   actualizarEntradaContado(event: Event): void {
     const valor = Number((event.target as HTMLInputElement).value);
     this.entradaContado = Number.isFinite(valor) && valor > 0 ? valor : 0;
     this.mensajeErrorFinanciacion = '';
   }
 
+  // Cambia forma de pago y reinicia mensaje de validación
   seleccionarFormaPago(valor: 'contado' | 'financiado'): void {
     this.formaPago = valor;
     this.mensajeErrorFinanciacion = '';
   }
 
+  // Reglas mínimas para evitar cerrar una financiación incompleta o inconsistente
   private validarFinanciacion(): boolean {
     if (this.formaPago !== 'financiado') {
       return true;
