@@ -13,6 +13,7 @@
     <thead>
       <tr>
         <th>ID</th>
+        <th>Imagen</th>
         <th>Marca</th>
         <th>Modelo</th>
         <th>Año</th>
@@ -27,6 +28,9 @@
       @for (v of vehiculosFiltrados; track v.id) {
         <tr>
           <td>{{ v.id }}</td>
+          <td>
+            <img class="vehiculo-miniatura" [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" loading="lazy" />
+          </td>
           <td>{{ v.marca }}</td>
           <td>{{ v.modelo }}</td>
           <td>{{ v.anio }}</td>
@@ -46,7 +50,7 @@
           </td>
         </tr>
       } @empty {
-        <tr><td colspan="9">No hay vehículos disponibles.</td></tr>
+        <tr><td colspan="10">No hay vehículos disponibles.</td></tr>
       }
     </tbody>
   </table>

@@ -2,6 +2,7 @@
   @if (vehiculo) {
     <div class="tarjeta-detalle">
       <h2>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h2>
+      <img class="vehiculo-imagen" [src]="vehiculo.imagen" [alt]="vehiculo.marca + ' ' + vehiculo.modelo" />
       <ul class="info-lista">
         <li><strong>ID:</strong> {{ vehiculo.id }}</li>
         <li><strong>Año:</strong> {{ vehiculo.anio }}</li>
