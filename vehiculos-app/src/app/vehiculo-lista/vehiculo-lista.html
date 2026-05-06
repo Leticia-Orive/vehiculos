@@ -1,4 +1,12 @@
 <div class="container">
+  <!-- Header con info del usuario y botón de logout -->
+  <div class="header-usuario">
+    <div class="usuario-info">
+      <span class="usuario-nombre">👤 {{ nombreUsuario }}</span>
+    </div>
+    <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+  </div>
+
   <h1>Gestión de Vehículos</h1>
 
   <!-- Modal de confirmación -->

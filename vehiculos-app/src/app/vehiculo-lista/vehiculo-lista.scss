@@ -1,0 +1,43 @@
+.header-usuario {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+}
+
+.usuario-nombre {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.btn-logout {
+  padding: 0.5rem 1.2rem;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
