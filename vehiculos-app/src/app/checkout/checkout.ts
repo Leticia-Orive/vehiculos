@@ -15,6 +15,7 @@ export class CheckoutComponent implements OnInit {
   nombreUsuario: string = '';
   pedidoCompletado: boolean = false;
   numeroPedido: string = '';
+  formaPago: 'contado' | 'financiado' = 'contado';
 
   constructor(
     private carritoService: CarritoService,
@@ -36,6 +37,11 @@ export class CheckoutComponent implements OnInit {
   // Calcula el total del pedido delegando en el servicio del carrito
   get total(): number {
     return this.carritoService.total;
+  }
+
+  // Etiqueta legible para la forma de pago elegida
+  get formaPagoLabel(): string {
+    return this.formaPago === 'financiado' ? 'Financiado' : 'Al contado';
   }
 
   // Confirma la compra, vacía el carrito y muestra confirmación

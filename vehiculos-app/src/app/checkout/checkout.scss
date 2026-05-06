@@ -109,6 +109,26 @@ h1 { margin-bottom: 1.5rem; }
   margin-bottom: 1rem;
 }
 
+.forma-pago {
+  margin-bottom: 1rem;
+
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: #1a237e;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 0.35rem;
+    cursor: pointer;
+  }
+}
+
 .btn-confirmar-pago {
   width: 100%;
   padding: 0.9rem;
@@ -156,6 +176,15 @@ h1 { margin-bottom: 1.5rem; }
   .numero-pedido {
     font-size: 1.05rem;
     margin-bottom: 2rem;
+
+    strong {
+      color: #1a237e;
+    }
+  }
+
+  .forma-pago-exito {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
 
     strong {
       color: #1a237e;
