@@ -14,6 +14,10 @@ export interface FinanciacionConfigState {
 export class FinanciacionConfigService {
   private readonly storageKey = 'financiacion_config_v1';
 
+  private normalizeModelPart(value: string): string {
+    return value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+  }
+
   getConfig(): FinanciacionConfigState {
     const raw = localStorage.getItem(this.storageKey);
     if (!raw) {
@@ -38,7 +42,7 @@ export class FinanciacionConfigService {
 
   // Clave canónica para reglas por modelo: "marca|modelo" en minúsculas
   buildModelKey(marca: string, modelo: string): string {
-    return `${marca}|${modelo}`.trim().toLocaleLowerCase();
+    return `${this.normalizeModelPart(marca)}|${this.normalizeModelPart(modelo)}`;
   }
 
   private defaultConfig(): FinanciacionConfigState {
@@ -68,12 +72,21 @@ export class FinanciacionConfigService {
     };
   }
 
+  normalizeConfigPublic(config: Partial<FinanciacionConfigState>): FinanciacionConfigState {
+    return this.normalizeConfig(config);
+  }
+
   private normalizeConfig(config: Partial<FinanciacionConfigState>): FinanciacionConfigState {
     const defaults = this.defaultConfig();
 
     const normalizedPorModelo: Partial<Record<string, ReglaFinanciacion>> = {};
     for (const [key, value] of Object.entries(config.porModelo || {})) {
-      const keyNormalizada = key.trim().toLocaleLowerCase();
+      const [marca = '', modelo = ''] = key.split('|');
+      if (!marca.trim() || !modelo.trim()) {
+        continue;
+      }
+
+      const keyNormalizada = this.buildModelKey(marca, modelo);
       if (!keyNormalizada) {
         continue;
       }

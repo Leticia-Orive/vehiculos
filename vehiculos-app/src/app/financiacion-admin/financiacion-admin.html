@@ -2,14 +2,32 @@
   <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
 
   <div class="admin-card">
+    @if (toastVisible) {
+      <p class="toast" [class.toast-success]="toastTipo === 'success'" [class.toast-warning]="toastTipo === 'warning'" [class.toast-info]="toastTipo === 'info'" aria-live="polite">{{ toastMensaje }}</p>
+    }
     <h2>Configuración de financiación</h2>
     <p class="subtitulo">Administra reglas base, por tipo y por modelo exacto.</p>
+    <div class="estado-guardado">
+      <label class="autosave-toggle">
+        <input type="checkbox" [ngModel]="autosaveEnabled" (ngModelChange)="onAutosaveToggle($event)" />
+        Guardado automático (1.5s)
+      </label>
+      <div class="estado-guardado-texto">
+        <small class="autosave-estado" [class.estado-off]="autosaveEstado === 'off'" [class.estado-pending]="autosaveEstado === 'pending'" [class.estado-blocked]="autosaveEstado === 'blocked'" [class.estado-synced]="autosaveEstado === 'synced'" aria-live="polite">{{ autosaveEstadoLabel }}</small>
+        @if (ultimoGuardadoLabel) {
+          <small class="ultimo-guardado">Último guardado: {{ ultimoGuardadoLabel }}</small>
+        }
+      </div>
+    </div>
+    @if (hayCambiosPendientes) {
+      <p class="msg-pending">Tienes cambios sin guardar.</p>
+    }
 
     @if (mensaje) {
-      <p class="msg-ok">{{ mensaje }}</p>
+      <p class="msg-ok" aria-live="polite">{{ mensaje }}</p>
     }
     @if (error) {
-      <p class="msg-error">{{ error }}</p>
+      <p class="msg-error" aria-live="assertive">{{ error }}</p>
     }
     @if (advertencias.length > 0) {
       <div class="msg-warning">
@@ -67,9 +85,43 @@
         <p class="help">Se usan con prioridad sobre las reglas por tipo.</p>
 
         <div class="modelo-add">
-          <input type="text" placeholder="Marca (ej: Toyota)" [(ngModel)]="nuevaMarca" />
-          <input type="text" placeholder="Modelo (ej: Corolla)" [(ngModel)]="nuevoModelo" />
-          <button type="button" (click)="agregarReglaModelo()">Añadir regla</button>
+          <label class="campo-modelo">
+            <span>
+              Marca
+              <small class="contador" [class.contador-error]="nuevaMarcaLength > 40">{{ nuevaMarcaLength }}/40</small>
+            </span>
+            <input
+              type="text"
+              placeholder="Marca (ej: Toyota)"
+              [ngModel]="nuevaMarca"
+              (ngModelChange)="onMarcaChange($event)"
+              [class.input-error]="nuevaMarcaInlineError"
+              [attr.aria-invalid]="!!nuevaMarcaInlineError"
+              maxlength="40"
+            />
+            @if (nuevaMarcaInlineError) {
+              <small class="error-inline">{{ nuevaMarcaInlineError }}</small>
+            }
+          </label>
+          <label class="campo-modelo">
+            <span>
+              Modelo
+              <small class="contador" [class.contador-error]="nuevoModeloLength > 40">{{ nuevoModeloLength }}/40</small>
+            </span>
+            <input
+              type="text"
+              placeholder="Modelo (ej: Corolla)"
+              [ngModel]="nuevoModelo"
+              (ngModelChange)="onModeloChange($event)"
+              [class.input-error]="nuevoModeloInlineError"
+              [attr.aria-invalid]="!!nuevoModeloInlineError"
+              maxlength="40"
+            />
+            @if (nuevoModeloInlineError) {
+              <small class="error-inline">{{ nuevoModeloInlineError }}</small>
+            }
+          </label>
+          <button type="button" (click)="agregarReglaModelo()" [disabled]="!puedeAgregarReglaModelo">Añadir regla</button>
         </div>
 
         @if (reglasModelo.length === 0) {
@@ -103,9 +155,34 @@
       </section>
 
       <div class="acciones-finales">
-        <button type="button" class="btn-guardar" (click)="guardarCambios()">Guardar cambios</button>
+        <button type="button" class="btn-guardar" (click)="guardarCambios()" [disabled]="!hayCambiosPendientes">Guardar cambios</button>
+        <button type="button" class="btn-descartar" (click)="descartarCambios()" [disabled]="!hayCambiosPendientes">Descartar cambios</button>
         <button type="button" class="btn-reset" (click)="restaurarPorDefecto()">Restaurar por defecto</button>
       </div>
+
+      <section class="bloque backup-section">
+        <h3>Backup de configuración</h3>
+        <p class="help">Exporta la configuración actual como JSON o importa una guardada anteriormente.</p>
+        <div class="backup-acciones">
+          <button type="button" class="btn-exportar" (click)="exportarConfiguracion()">&#8681; Exportar JSON</button>
+          <label class="btn-importar">
+            &#8679; Importar JSON
+            <input type="file" accept=".json,application/json" (change)="importarConfiguracion($event)" style="display:none" />
+          </label>
+        </div>
+      </section>
+
+      @if (historialAcciones.length > 0) {
+        <section class="historial-acciones">
+          <h4>Últimas acciones</h4>
+          @for (accion of historialAcciones; track $index) {
+            <p>
+              <span>{{ accion.descripcion }}</span>
+              <small>{{ formatearHora(accion.hora) }}</small>
+            </p>
+          }
+        </section>
+      }
     }
   </div>
 </div>
