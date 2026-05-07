@@ -213,14 +213,21 @@ export class FinanciacionAdminComponent implements OnInit {
       return;
     }
 
-    this.reglasModelo = Object.entries(this.config.porModelo).map(([key, regla]) => {
-      const [marca = '', modelo = ''] = key.split('|');
-      return {
-        key,
-        marca,
-        modelo,
-        regla,
-      };
-    }).sort((a, b) => a.key.localeCompare(b.key));
+    this.reglasModelo = Object.entries(this.config.porModelo)
+      .reduce<ReglaModeloRow[]>((filas, [key, regla]) => {
+        if (!regla) {
+          return filas;
+        }
+
+        const [marca = '', modelo = ''] = key.split('|');
+        filas.push({
+          key,
+          marca,
+          modelo,
+          regla,
+        });
+        return filas;
+      }, [])
+      .sort((a, b) => a.key.localeCompare(b.key));
   }
 }
