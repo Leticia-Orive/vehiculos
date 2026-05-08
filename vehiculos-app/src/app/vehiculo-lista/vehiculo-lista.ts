@@ -38,6 +38,7 @@ type EstadoPersistido = {
 })
 export class VehiculoLista implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'vehiculos.lista.estado';
+  // Imagen de respaldo para evitar miniaturas rotas cuando una URL falla.
   readonly imagenPlaceholder: string =
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='430' viewBox='0 0 720 430'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23edf1f5'/><stop offset='100%' stop-color='%23d7e0e9'/></linearGradient></defs><rect width='720' height='430' fill='url(%23g)'/><g fill='none' stroke='%238ea3b8' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'><rect x='145' y='115' width='430' height='200' rx='14'/><path d='M195 275l95-82 78 70 58-52 94 84'/><circle cx='495' cy='170' r='24'/></g><text x='50%' y='82%' text-anchor='middle' fill='%235f7387' font-size='28' font-family='Segoe UI, Arial, sans-serif'>Imagen no disponible</text></svg>";
 
@@ -185,6 +186,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
   }
 
   get filtrosActivosCount(): number {
+    // Conteo centralizado para mostrar al usuario cuántos filtros están afectando el resultado.
     let total = 0;
     if (this.filtroTipo) total++;
     if (this.busqueda.trim()) total++;
@@ -220,6 +222,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
 
   onCilindradaMinChange(valor: number): void {
     this.cilindradaMin = valor;
+    // Si el mínimo supera al máximo, se corrige automáticamente para mantener un rango válido.
     if (this.cilindradaMin > this.cilindradaMax) {
       this.cilindradaMax = this.cilindradaMin;
     }
@@ -229,6 +232,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
 
   onCilindradaMaxChange(valor: number): void {
     this.cilindradaMax = valor;
+    // Si el máximo queda por debajo del mínimo, se reajusta para evitar estado inválido.
     if (this.cilindradaMax < this.cilindradaMin) {
       this.cilindradaMin = this.cilindradaMax;
     }
@@ -238,6 +242,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
 
   onPotenciaMinChange(valor: number): void {
     this.potenciaMin = valor;
+    // Se mantiene coherencia min/max para que el filtro siempre sea aplicable.
     if (this.potenciaMin > this.potenciaMax) {
       this.potenciaMax = this.potenciaMin;
     }
@@ -247,6 +252,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
 
   onPotenciaMaxChange(valor: number): void {
     this.potenciaMax = valor;
+    // Se mantiene coherencia min/max para que el filtro siempre sea aplicable.
     if (this.potenciaMax < this.potenciaMin) {
       this.potenciaMin = this.potenciaMax;
     }
@@ -277,6 +283,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
   }
 
   limpiarFiltrosActivos(): void {
+    // Limpieza rápida de filtros de búsqueda sin resetear preferencias de vista/orden globales.
     this.filtroTipo = '';
     this.busqueda = '';
     this.precioMin = null;
@@ -382,6 +389,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.cartSub?.unsubscribe();
+    // Se limpian timers activos para evitar fugas al salir de la vista.
     this.addTimers.forEach(t => clearTimeout(t));
     if (this.timerReset) {
       clearTimeout(this.timerReset);
@@ -394,6 +402,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
     if (!img || img.src === this.imagenPlaceholder) {
       return;
     }
+    // Sustituye una imagen fallida por placeholder y corta reintentos.
     img.src = this.imagenPlaceholder;
   }
 
@@ -462,6 +471,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
   }
 
   guardarEstado(): void {
+    // Persistencia completa de filtros/preferencias para mantener continuidad entre recargas.
     const estado: EstadoPersistido = {
       filtroTipo: this.filtroTipo,
       busqueda: this.busqueda,
@@ -505,6 +515,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
       this.favoritosIds = Array.isArray(estado.favoritosIds)
         ? estado.favoritosIds.filter((id): id is number => typeof id === 'number')
         : this.favoritosIds;
+      // Garantiza que los rangos restaurados no queden invertidos por datos viejos/corruptos.
       this.normalizarRangosCaracteristicas();
     } catch {
       localStorage.removeItem(this.STORAGE_KEY);

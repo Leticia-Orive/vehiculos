@@ -64,6 +64,7 @@
   </div>
 
   <div class="filtros-avanzados">
+    <!-- Filtros numéricos: rango de precio y de características técnicas -->
     <div class="precio-rango">
       <label for="precioMin">Precio mín.</label>
       <input
@@ -170,6 +171,7 @@
   </div>
 
   @if (hayFiltrosActivos) {
+    <!-- Resumen rápido de filtros aplicados para entender por qué baja el resultado -->
     <div class="filtros-activos-resumen" aria-live="polite">
       <span>
         {{ filtrosActivosCount }} filtro{{ filtrosActivosCount !== 1 ? 's' : '' }} activo{{ filtrosActivosCount !== 1 ? 's' : '' }}
@@ -236,6 +238,7 @@
           <tr>
             <td>{{ v.id }}</td>
             <td>
+              <!-- El fallback evita miniaturas rotas si la imagen remota falla -->
               <img class="vehiculo-miniatura" [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" (error)="onImagenError($event)" loading="lazy" />
             </td>
             <td>{{ v.marca }}</td>
@@ -285,6 +288,7 @@
       @for (v of vehiculosPaginados; track v.id) {
         <div class="vehiculo-card">
           <div class="card-imagen-wrap">
+            <!-- El fallback evita miniaturas rotas si la imagen remota falla -->
             <img [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" (error)="onImagenError($event)" loading="lazy" />
             <span class="badge badge-{{v.tipo}} card-badge-tipo">{{ v.tipo }}</span>
             <button class="card-favorito" (click)="toggleFavorito(v.id)" [title]="esFavorito(v.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">

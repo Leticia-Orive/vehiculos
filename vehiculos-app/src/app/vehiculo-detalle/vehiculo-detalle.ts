@@ -17,6 +17,7 @@ import { CarritoService } from '../carrito.service';
 })
 export class VehiculoDetalle implements OnInit, OnDestroy {
   readonly cantidadMaxima: number = 99;
+  // Placeholder usado cuando la imagen principal o relacionada no carga.
   readonly imagenPlaceholder: string =
     "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='900' height='560' viewBox='0 0 900 560'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23eef1f5'/><stop offset='100%' stop-color='%23d9e1ea'/></linearGradient></defs><rect width='900' height='560' fill='url(%23g)'/><g fill='none' stroke='%238fa3b7' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'><rect x='200' y='170' width='500' height='220' rx='16'/><path d='M260 330l120-110 90 85 70-65 100 90'/><circle cx='605' cy='235' r='28'/></g><text x='50%' y='82%' text-anchor='middle' fill='%235b6f84' font-size='34' font-family='Segoe UI, Arial, sans-serif'>Imagen no disponible</text></svg>";
   vehiculo: Vehiculo | undefined;
@@ -43,6 +44,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.esAdmin = this.authService.esAdmin();
+    // Sincroniza el contador local con el estado real del carrito en tiempo real.
     this.cartSub = this.carritoService.items$.subscribe(items => {
       this.cantidadEnCarrito = items.find(i => i.vehiculo.id === this.vehiculo?.id)?.cantidad ?? 0;
     });
@@ -63,6 +65,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.cartSub?.unsubscribe();
+    // Limpieza defensiva de timers para evitar efectos tardíos al salir de la vista.
     if (this.mensajeTimer) {
       clearTimeout(this.mensajeTimer);
       this.mensajeTimer = null;
@@ -95,6 +98,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
     if (!img || img.src === this.imagenPlaceholder) {
       return;
     }
+    // Cambia a placeholder si falla la URL y evita bucles de error.
     img.src = this.imagenPlaceholder;
   }
 
@@ -111,6 +115,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   }
 
   normalizarCantidad(): void {
+    // Mantiene la cantidad en un rango válido (1..cantidadMaxima) antes de operar.
     const cantidad = Number(this.cantidad);
     if (!Number.isFinite(cantidad)) {
       this.cantidad = 1;
@@ -139,6 +144,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
 
       this.animacionTimer = setTimeout(() => {
         this.animandoCarrito = false;
+        // Reestablece la cantidad para la siguiente acción de compra rápida.
         this.cantidad = 1;
         this.animacionTimer = null;
       }, 2000);
@@ -175,6 +181,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   // Quita una unidad del vehículo actual del carrito
   quitarUnaUnidad(): void {
     if (this.vehiculo && this.cantidadEnCarrito > 0) {
+      // Decrementa solo una unidad; si llega a 0 el servicio elimina el item.
       this.carritoService.cambiarCantidad(this.vehiculo.id, this.cantidadEnCarrito - 1);
       this.setMensajeCarritoTemporal('✓ 1 unidad removida', 1200);
     }
@@ -189,6 +196,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   }
 
   private setMensajeCarritoTemporal(mensaje: string, ms: number, onDone?: () => void): void {
+    // Muestra feedback breve y cancela el timer previo para evitar solapamientos.
     this.mensajeCarrito = mensaje;
 
     if (this.mensajeTimer) {

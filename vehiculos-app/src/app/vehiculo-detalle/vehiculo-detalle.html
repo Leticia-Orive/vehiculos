@@ -19,6 +19,7 @@
 
       <!-- Lightbox -->
       @if (lightboxAbierto) {
+        <!-- Overlay modal: click fuera o ESC para cerrar -->
         <div class="lightbox-overlay" (click)="cerrarLightbox()" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
           <button class="lightbox-cerrar" (click)="cerrarLightbox()" aria-label="Cerrar">&#x2715;</button>
           <img
@@ -71,6 +72,7 @@
         <!-- Derecha: acciones según disponibilidad y rol -->
         <div class="acciones-grupo">
           @if (cantidadEnCarrito > 0) {
+            <!-- Ajuste rápido de unidades ya agregadas sin salir del detalle -->
             <div class="carrito-inline-control">
               <button type="button" class="btn-carrito-inline" (click)="quitarUnaUnidad()" title="Quitar una unidad" aria-label="Quitar una unidad del carrito">−</button>
               <span class="carrito-inline-qty" aria-label="Cantidad actual en carrito">{{ cantidadEnCarrito }}</span>

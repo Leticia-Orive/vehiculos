@@ -10,6 +10,7 @@
 
 // ── Lightbox ────────────────────────────────────────────────────────────────
 .lightbox-overlay {
+  // Capa modal para enfocar la imagen ampliada y atenuar el resto de la pantalla.
   position: fixed;
   inset: 0;
   z-index: 2000;
@@ -95,6 +96,7 @@
 }
 
 .carrito-inline-control {
+  // Mini panel para sumar/restar unidades del item ya presente en carrito.
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -152,6 +154,7 @@
 }
 
 .detalle-acciones {
+  // Distribuye acciones principales (volver, carrito, comprar, editar).
   display: flex;
   flex-wrap: nowrap;
   gap: 0.75rem;

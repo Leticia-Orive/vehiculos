@@ -182,6 +182,7 @@
 }
 
 .filtros-avanzados {
+  // Contenedor de filtros técnicos/numéricos y controles secundarios del catálogo.
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -464,6 +465,7 @@
 }
 
 .filtros-activos-resumen {
+  // Banda de contexto para mostrar cuántos filtros afectan el resultado actual.
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -564,6 +566,7 @@
 
 // ── Vista grid / tarjetas ────────────────────────────────────────────────────
 .vehiculos-grid {
+  // Grilla responsive para la vista tipo tarjetas.
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.25rem;
