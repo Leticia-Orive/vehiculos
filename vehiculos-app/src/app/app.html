@@ -1,1 +1,38 @@
-<router-outlet />
+@if (autenticado) {
+  <header class="app-navbar">
+    <div class="navbar-inner">
+      <a routerLink="/" class="navbar-brand">
+        <span class="navbar-logo">🚗</span>
+        <span class="navbar-title">Vehículos</span>
+      </a>
+
+      <nav class="navbar-links">
+        <a routerLink="/" class="nav-link">Catálogo</a>
+        @if (esAdmin) {
+          <a routerLink="/admin/financiacion" class="nav-link nav-link-admin">⚙ Admin</a>
+        }
+      </nav>
+
+      <div class="navbar-acciones">
+        <a routerLink="/carrito" class="nav-carrito" aria-label="Ver carrito">
+          🛒
+          @if (cantidadCarrito > 0) {
+            <span class="carrito-badge">{{ cantidadCarrito > 99 ? '99+' : cantidadCarrito }}</span>
+          }
+        </a>
+        <span class="nav-usuario">{{ nombreUsuario }}</span>
+        <button type="button" class="btn-logout" (click)="logout()">Salir</button>
+      </div>
+    </div>
+  </header>
+}
+
+<main [class.con-navbar]="autenticado">
+  <router-outlet />
+</main>
+
+@if (mostrarScrollTop) {
+  <button class="btn-scroll-top" (click)="scrollTop()" aria-label="Volver arriba" title="Volver arriba">
+    &#8679;
+  </button>
+}

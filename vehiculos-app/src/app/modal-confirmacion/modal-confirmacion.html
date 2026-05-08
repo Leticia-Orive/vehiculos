@@ -1,14 +1,19 @@
 <!-- Overlay de fondo oscuro -->
 @if (mostrar) {
-  <div class="modal-overlay" (click)="onCancelar()">
+  <div class="modal-overlay" (click)="onOverlayClick()" [class]="'modal-' + tipo">
     <!-- Modal centrada (no se cierra al hacer click en el contenido) -->
-    <div class="modal-contenido" (click)="$event.stopPropagation()">
-      <h2>{{ titulo }}</h2>
+    <div class="modal-contenido" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="titulo" tabindex="-1">
+      <div class="modal-cabecera">
+        @if (iconoDefecto) {
+          <span class="modal-icono">{{ iconoDefecto }}</span>
+        }
+        <h2>{{ titulo }}</h2>
+      </div>
       <p>{{ mensaje }}</p>
 
       <div class="modal-acciones">
-        <button class="btn-cancelar" (click)="onCancelar()">{{ textoBtnCancelar }}</button>
-        <button class="btn-confirmar" (click)="onConfirmar()">{{ textoBtnConfirmar }}</button>
+        <button type="button" class="btn-cancelar" (click)="onCancelar()">{{ textoBtnCancelar }}</button>
+        <button type="button" class="btn-confirmar" [class]="'btn-' + tipo" (click)="onConfirmar()">{{ textoBtnConfirmar }}</button>
       </div>
     </div>
   </div>

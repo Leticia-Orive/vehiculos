@@ -1,24 +1,4 @@
 <div class="container">
-  <!-- Header con info del usuario, carrito y botón de logout -->
-  <div class="header-usuario">
-    <div class="usuario-info">
-      <span class="usuario-nombre">👤 {{ nombreUsuario }}</span>
-      @if (esAdmin) {
-        <span class="badge-admin">Admin</span>
-      }
-    </div>
-    <div class="header-acciones">
-      <!-- Botón carrito con badge de cantidad -->
-      <button class="btn-carrito" (click)="irAlCarrito()">
-        🛒 Carrito
-        @if (cantidadCarrito > 0) {
-          <span class="badge-carrito">{{ cantidadCarrito }}</span>
-        }
-      </button>
-      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
-    </div>
-  </div>
-
   <div class="titulo-row">
     <h1>Gestión de Vehículos</h1>
     <!-- Solo el admin puede añadir vehículos -->
@@ -29,6 +9,19 @@
       </div>
     }
   </div>
+
+  @if (cargando) {
+    <div class="skeleton-grid">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="skeleton-card">
+          <div class="sk sk-imagen"></div>
+          <div class="sk sk-titulo"></div>
+          <div class="sk sk-sub"></div>
+          <div class="sk sk-precio"></div>
+        </div>
+      }
+    </div>
+  } @else {
 
   <!-- Modal de confirmación -->
   <app-modal-confirmacion
@@ -49,59 +42,297 @@
     <button (click)="setFiltro('camion')" [class.activo]="filtroTipo === 'camion'">Camiones</button>
   </div>
 
-  <table class="tabla-vehiculos">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Imagen</th>
-        <th>Marca</th>
-        <th>Modelo</th>
-        <th>Año</th>
-        <th>Color</th>
-        <th>Precio</th>
-        <th>Tipo</th>
-        <th>Disponible</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (v of vehiculosFiltrados; track v.id) {
-        <tr>
-          <td>{{ v.id }}</td>
-          <td>
-            <!-- Miniatura usando la ruta local guardada en v.imagen -->
-            <img class="vehiculo-miniatura" [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" loading="lazy" />
-          </td>
-          <td>{{ v.marca }}</td>
-          <td>{{ v.modelo }}</td>
-          <td>{{ v.anio }}</td>
-          <td>{{ v.color }}</td>
-          <td>{{ v.precio | currency:'USD' }}</td>
-          <td><span class="badge badge-{{v.tipo}}">{{ v.tipo }}</span></td>
-          <td>
-            @if (v.disponible) {
-              <span class="disponible">Sí</span>
-            } @else {
-              <span class="no-disponible">No</span>
-            }
-          </td>
-          <td>
-            <!-- Ver: disponible para todos -->
-            <a [routerLink]="['/vehiculo', v.id]" class="btn-ver">Ver</a>
-            <!-- Añadir al carrito: solo si está disponible -->
-            @if (v.disponible) {
-              <button (click)="agregarAlCarrito(v)" class="btn-carrito-add">🛒 Añadir</button>
-            }
-            <!-- Editar y Eliminar: solo admin -->
-            @if (esAdmin) {
-              <a [routerLink]="['/vehiculo', v.id, 'editar']" class="btn-editar">Editar</a>
-              <button (click)="eliminar(v.id)" class="btn-eliminar">Eliminar</button>
-            }
-          </td>
-        </tr>
-      } @empty {
-        <tr><td colspan="10">No hay vehículos disponibles.</td></tr>
+  <!-- Barra de herramientas: búsqueda + toggle de vista -->
+  <div class="toolbar">
+    <div class="buscador">
+      <span class="buscador-icono">🔍</span>
+      <input
+        type="text"
+        [ngModel]="busqueda"
+        (ngModelChange)="onBusquedaChange($event)"
+        placeholder="Buscar por marca, modelo o color..."
+        class="buscador-input"
+      />
+      @if (busqueda) {
+        <button class="buscador-limpiar" (click)="limpiarBusqueda()">✕</button>
       }
-    </tbody>
-  </table>
+    </div>
+    <div class="vista-toggle">
+      <button [class.activo]="vistaActual === 'tabla'" (click)="setVista('tabla')" title="Vista tabla">☰</button>
+      <button [class.activo]="vistaActual === 'grid'" (click)="setVista('grid')" title="Vista tarjetas">⊞</button>
+    </div>
+  </div>
+
+  <div class="filtros-avanzados">
+    <div class="precio-rango">
+      <label for="precioMin">Precio mín.</label>
+      <input
+        id="precioMin"
+        type="number"
+        min="0"
+        [ngModel]="precioMin"
+        (ngModelChange)="onPrecioMinChange($event?.toString() ?? '')"
+        placeholder="0"
+      />
+      <label for="precioMax">Precio máx.</label>
+      <input
+        id="precioMax"
+        type="number"
+        min="0"
+        [ngModel]="precioMax"
+        (ngModelChange)="onPrecioMaxChange($event?.toString() ?? '')"
+        placeholder="Sin límite"
+      />
+      <button class="btn-limpiar-precio" (click)="limpiarFiltrosPrecio()">Limpiar precio</button>
+    </div>
+
+    <!-- Filtros de características -->
+    <div class="caracteristicas-rango">
+      <fieldset>
+        <legend>Cilindrada (cc)</legend>
+        <div class="rango-control">
+          <label>Min: {{ cilindradaMin }}</label>
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            [ngModel]="cilindradaMin"
+            (ngModelChange)="onCilindradaMinChange($event)"
+            name="cilindradaMin"
+          />
+        </div>
+        <div class="rango-control">
+          <label>Máx: {{ cilindradaMax }}</label>
+          <input
+            type="range"
+            min="0"
+            max="5000"
+            step="100"
+            [ngModel]="cilindradaMax"
+            (ngModelChange)="onCilindradaMaxChange($event)"
+            name="cilindradaMax"
+          />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Potencia (CV)</legend>
+        <div class="rango-control">
+          <label>Min: {{ potenciaMin }}</label>
+          <input
+            type="range"
+            min="0"
+            max="500"
+            step="10"
+            [ngModel]="potenciaMin"
+            (ngModelChange)="onPotenciaMinChange($event)"
+            name="potenciaMin"
+          />
+        </div>
+        <div class="rango-control">
+          <label>Máx: {{ potenciaMax }}</label>
+          <input
+            type="range"
+            min="0"
+            max="500"
+            step="10"
+            [ngModel]="potenciaMax"
+            (ngModelChange)="onPotenciaMaxChange($event)"
+            name="potenciaMax"
+          />
+        </div>
+      </fieldset>
+
+      <button class="btn-limpiar-caracteristicas" (click)="limpiarFiltrosCaracteristicas()">Limpiar características</button>
+    </div>
+
+    <div class="controles-secundarios">
+      <button class="btn-favoritos" [class.activo]="soloFavoritos" (click)="toggleSoloFavoritos()">
+        {{ soloFavoritos ? '★ Solo favoritos' : '☆ Mostrar favoritos' }}
+      </button>
+
+      <button class="btn-reset-preferencias" (click)="resetearPreferencias()">
+        Reset total
+      </button>
+
+      <label for="itemsPorPagina">Items por página</label>
+      <select
+        id="itemsPorPagina"
+        [ngModel]="itemsPorPagina"
+        (ngModelChange)="setItemsPorPagina($event)"
+      >
+        @for (opcion of opcionesItemsPorPagina; track opcion) {
+          <option [ngValue]="opcion">{{ opcion }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (hayFiltrosActivos) {
+    <div class="filtros-activos-resumen" aria-live="polite">
+      <span>
+        {{ filtrosActivosCount }} filtro{{ filtrosActivosCount !== 1 ? 's' : '' }} activo{{ filtrosActivosCount !== 1 ? 's' : '' }}
+      </span>
+      <button class="btn-limpiar-filtros-activos" (click)="limpiarFiltrosActivos()">Limpiar filtros</button>
+    </div>
+  }
+
+  <!-- Contador de resultados -->
+  @if (vehiculosFiltrados.length > 0) {
+    <p class="resultado-count">{{ vehiculosFiltrados.length }} vehículo{{ vehiculosFiltrados.length !== 1 ? 's' : '' }} encontrado{{ vehiculosFiltrados.length !== 1 ? 's' : '' }}</p>
+  }
+
+  @if (mensajeAgregado) {
+    <div class="msg-agregado">{{ mensajeAgregado }}</div>
+  }
+
+  @if (mensajeReset) {
+    <div class="toast-reset">{{ mensajeReset }}</div>
+  }
+
+  <!-- Estado vacío -->
+  @if (vehiculosFiltrados.length === 0) {
+    <div class="estado-vacio">
+      <span class="estado-vacio-icono">🔎</span>
+      <p>No se encontraron vehículos</p>
+      @if (busqueda) {
+        <button class="btn-limpiar-busqueda" (click)="limpiarBusqueda()">Limpiar búsqueda</button>
+      } @else {
+        <button class="btn-limpiar-busqueda" (click)="setFiltro('')">Ver todos</button>
+      }
+    </div>
+  }
+
+  <!-- Vista tabla -->
+  @if (vistaActual === 'tabla' && vehiculosFiltrados.length > 0) {
+    <table class="tabla-vehiculos">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Imagen</th>
+          <th class="th-ordenable" (click)="ordenar('marca')">
+            Marca <span class="icono-orden">{{ iconoOrden('marca') }}</span>
+          </th>
+          <th class="th-ordenable" (click)="ordenar('modelo')">
+            Modelo <span class="icono-orden">{{ iconoOrden('modelo') }}</span>
+          </th>
+          <th class="th-ordenable" (click)="ordenar('anio')">
+            Año <span class="icono-orden">{{ iconoOrden('anio') }}</span>
+          </th>
+          <th>Color</th>
+          <th class="th-ordenable" (click)="ordenar('precio')">
+            Precio <span class="icono-orden">{{ iconoOrden('precio') }}</span>
+          </th>
+          <th>Tipo</th>
+          <th class="th-ordenable" (click)="ordenar('disponible')">
+            Disponible <span class="icono-orden">{{ iconoOrden('disponible') }}</span>
+          </th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of vehiculosPaginados; track v.id) {
+          <tr>
+            <td>{{ v.id }}</td>
+            <td>
+              <img class="vehiculo-miniatura" [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" (error)="onImagenError($event)" loading="lazy" />
+            </td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.anio }}</td>
+            <td>{{ v.color }}</td>
+            <td>{{ v.precio | currency:'USD' }}</td>
+            <td><span class="badge badge-{{v.tipo}}">{{ v.tipo }}</span></td>
+            <td>
+              @if (v.disponible) {
+                <span class="disponible">Sí</span>
+              } @else {
+                <span class="no-disponible">No</span>
+              }
+            </td>
+            <td>
+              <button class="btn-favorito-inline" (click)="toggleFavorito(v.id)" [title]="esFavorito(v.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+                {{ esFavorito(v.id) ? '★' : '☆' }}
+              </button>
+              <a [routerLink]="['/vehiculo', v.id]" class="btn-ver">Ver</a>
+              @if (v.disponible) {
+                <button
+                  (click)="agregarAlCarrito(v)"
+                  class="btn-carrito-add"
+                  [class.btn-carrito-add--ok]="esRecienAgregado(v.id)"
+                >
+                  @if (esRecienAgregado(v.id)) { ✓ Añadido } @else { 🛒 Añadir }
+                </button>
+                @if (cantidadEnCarrito(v.id) > 0) {
+                  <span class="badge-en-carrito" title="En carrito">{{ cantidadEnCarrito(v.id) }}</span>
+                }
+              }
+              @if (esAdmin) {
+                <a [routerLink]="['/vehiculo', v.id, 'editar']" class="btn-editar">Editar</a>
+                <button (click)="eliminar(v.id)" class="btn-eliminar">Eliminar</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Vista grid/tarjetas -->
+  @if (vistaActual === 'grid' && vehiculosFiltrados.length > 0) {
+    <div class="vehiculos-grid">
+      @for (v of vehiculosPaginados; track v.id) {
+        <div class="vehiculo-card">
+          <div class="card-imagen-wrap">
+            <img [src]="v.imagen" [alt]="v.marca + ' ' + v.modelo" (error)="onImagenError($event)" loading="lazy" />
+            <span class="badge badge-{{v.tipo}} card-badge-tipo">{{ v.tipo }}</span>
+            <button class="card-favorito" (click)="toggleFavorito(v.id)" [title]="esFavorito(v.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+              {{ esFavorito(v.id) ? '★' : '☆' }}
+            </button>
+            @if (!v.disponible) {
+              <span class="card-badge-nodisponible">No disponible</span>
+            }
+          </div>
+          <div class="card-body">
+            <h3 class="card-titulo">{{ v.marca }} {{ v.modelo }}</h3>
+            <p class="card-subtitulo">{{ v.anio }} · {{ v.color }}</p>
+            <p class="card-precio">{{ v.precio | currency:'USD' }}</p>
+          </div>
+          <div class="card-acciones">
+            <a [routerLink]="['/vehiculo', v.id]" class="btn-ver">Ver detalle</a>
+            @if (v.disponible) {
+              <div class="card-carrito-wrap">
+                <button
+                  (click)="agregarAlCarrito(v)"
+                  class="btn-carrito-add"
+                  [class.btn-carrito-add--ok]="esRecienAgregado(v.id)"
+                >
+                  @if (esRecienAgregado(v.id)) { ✓ } @else { 🛒 }
+                </button>
+                @if (cantidadEnCarrito(v.id) > 0) {
+                  <span class="badge-en-carrito">{{ cantidadEnCarrito(v.id) }}</span>
+                }
+              </div>
+            }
+            @if (esAdmin) {
+              <a [routerLink]="['/vehiculo', v.id, 'editar']" class="btn-editar">✏</a>
+              <button (click)="eliminar(v.id)" class="btn-eliminar">✕</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (vehiculosFiltrados.length > itemsPorPagina) {
+    <div class="paginacion">
+      <button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</button>
+      <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">Siguiente</button>
+    </div>
+    <p class="rango-pagina">Mostrando {{ paginaDesde }}-{{ paginaHasta }} de {{ vehiculosFiltrados.length }}</p>
+  }
+
+  } <!-- end @else (cargando) -->
 </div>

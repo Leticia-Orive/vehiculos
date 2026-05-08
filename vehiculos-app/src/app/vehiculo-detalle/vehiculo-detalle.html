@@ -1,9 +1,36 @@
 <div class="container">
   @if (vehiculo) {
     <div class="tarjeta-detalle">
-      <h2>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h2>
+      <div class="detalle-header">
+        <h2>{{ vehiculo.marca }} {{ vehiculo.modelo }}</h2>
+        @if (cantidadEnCarrito > 0) {
+          <span class="badge-en-carrito" title="En tu carrito">{{ cantidadEnCarrito }} en carrito</span>
+        }
+      </div>
       <!-- Imagen principal del vehículo seleccionado -->
-      <img class="vehiculo-imagen" [src]="vehiculo.imagen" [alt]="vehiculo.marca + ' ' + vehiculo.modelo" />
+      <img
+        class="vehiculo-imagen"
+        [src]="vehiculo.imagen"
+        [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
+        (error)="onImagenError($event)"
+        (click)="abrirLightbox()"
+        title="Haz clic para ampliar"
+      />
+
+      <!-- Lightbox -->
+      @if (lightboxAbierto) {
+        <div class="lightbox-overlay" (click)="cerrarLightbox()" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+          <button class="lightbox-cerrar" (click)="cerrarLightbox()" aria-label="Cerrar">&#x2715;</button>
+          <img
+            class="lightbox-img"
+            [src]="vehiculo.imagen"
+            [alt]="vehiculo.marca + ' ' + vehiculo.modelo"
+            (error)="onImagenError($event)"
+            (click)="$event.stopPropagation()"
+          />
+          <p class="lightbox-caption">{{ vehiculo.marca }} {{ vehiculo.modelo }} &middot; {{ vehiculo.anio }}</p>
+        </div>
+      }
       <ul class="info-lista">
         <li><strong>ID:</strong> {{ vehiculo.id }}</li>
         <li><strong>Año:</strong> {{ vehiculo.anio }}</li>
@@ -21,7 +48,20 @@
 
       <!-- Mensaje de confirmación al añadir al carrito -->
       @if (mensajeCarrito) {
-        <div class="msg-carrito">{{ mensajeCarrito }}</div>
+        <div class="msg-carrito" [class.animando]="animandoCarrito" role="status" aria-live="polite">{{ mensajeCarrito }}</div>
+      }
+
+      <!-- Selector de cantidad -->
+      @if (vehiculo.disponible) {
+        <div class="cantidad-selector">
+          <label for="cantidad">Cantidad:</label>
+          <div class="cantidad-control">
+            <button type="button" class="btn-qty" (click)="decrementarCantidad()" [disabled]="cantidad <= 1" aria-label="Reducir cantidad">−</button>
+            <input type="number" id="cantidad" [(ngModel)]="cantidad" (blur)="normalizarCantidad()" name="cantidad" min="1" [max]="cantidadMaxima" aria-label="Cantidad de unidades" aria-describedby="cantidad-ayuda" />
+            <button type="button" class="btn-qty" (click)="incrementarCantidad()" [disabled]="cantidad >= cantidadMaxima" aria-label="Aumentar cantidad">+</button>
+          </div>
+          <small id="cantidad-ayuda" class="cantidad-ayuda">Mínimo 1, máximo {{ cantidadMaxima }} unidades.</small>
+        </div>
       }
 
       <div class="detalle-acciones">
@@ -30,10 +70,17 @@
 
         <!-- Derecha: acciones según disponibilidad y rol -->
         <div class="acciones-grupo">
+          @if (cantidadEnCarrito > 0) {
+            <div class="carrito-inline-control">
+              <button type="button" class="btn-carrito-inline" (click)="quitarUnaUnidad()" title="Quitar una unidad" aria-label="Quitar una unidad del carrito">−</button>
+              <span class="carrito-inline-qty" aria-label="Cantidad actual en carrito">{{ cantidadEnCarrito }}</span>
+              <button type="button" class="btn-carrito-inline" (click)="agregarUnaUnidad()" title="Agregar una unidad" aria-label="Agregar una unidad al carrito">+</button>
+              <button class="btn-limpiar-carrito" (click)="limpiarDelCarrito()" title="Quitar del carrito" aria-label="Quitar este vehículo del carrito">✕</button>
+            </div>
+          }
           @if (vehiculo.disponible) {
             <button class="btn-carrito-add" (click)="agregarAlCarrito()">🛒 Añadir al carrito</button>
             <button class="btn-comprar" (click)="comprarAhora()">⚡ Comprar ahora</button>
-            <button class="btn-ir-carrito" (click)="irAlCarrito()">Ver carrito</button>
           }
           @if (esAdmin) {
             <a [routerLink]="['/vehiculo', vehiculo.id, 'editar']" class="btn-editar">&#9998; Editar</a>
@@ -41,7 +88,28 @@
         </div>
       </div>
     </div>
-  } @else {
+    <!-- Vehículos relacionados del mismo tipo -->
+    @if (vehiculosRelacionados.length > 0) {
+      <div class="relacionados">
+        <h3>También te puede interesar</h3>
+        <div class="relacionados-grid">
+          @for (rel of vehiculosRelacionados; track rel.id) {
+            <a [routerLink]="['/vehiculo', rel.id]" class="rel-card">
+              <img [src]="rel.imagen" [alt]="rel.marca + ' ' + rel.modelo" (error)="onImagenError($event)" />
+              <div class="rel-info">
+                <span class="rel-nombre">{{ rel.marca }} {{ rel.modelo }}</span>
+                <span class="rel-precio">{{ rel.precio | currency:'USD' }}</span>
+                @if (!rel.disponible) {
+                  <span class="rel-nodisponible">No disponible</span>
+                } @else {
+                  <button type="button" class="btn-quick-buy" (click)="comprarRelacionado(rel); $event.preventDefault(); $event.stopPropagation()" title="Comprar ahora">⚡ Comprar</button>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }  } @else {
     <p>Vehículo no encontrado.</p>
     <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
   }

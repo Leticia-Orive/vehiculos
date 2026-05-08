@@ -27,3 +27,94 @@
     }
   }
 }
+
+// ── Toggle contraseña (copia de login) ────────────────────────────────────────
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+    padding-right: 2.8rem;
+  }
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.2rem;
+  line-height: 1;
+  color: #888;
+  transition: color 0.2s;
+  &:hover { color: #333; }
+}
+
+// ── Indicador de fortaleza ───────────────────────────────────────────────────
+.password-fuerza {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.fuerza-barra {
+  flex: 1;
+  height: 5px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fuerza-relleno {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+
+  &.fuerza-debil   { background: #ef5350; }
+  &.fuerza-regular { background: #ffa726; }
+  &.fuerza-buena   { background: #66bb6a; }
+  &.fuerza-fuerte  { background: #2e7d32; }
+}
+
+.fuerza-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 52px;
+
+  &.fuerza-debil   { color: #ef5350; }
+  &.fuerza-regular { color: #ffa726; }
+  &.fuerza-buena   { color: #66bb6a; }
+  &.fuerza-fuerte  { color: #2e7d32; }
+}
+
+// ── Indicadores de validación ───────────────────────────────────────────────
+.campo-valido {
+  border-color: #2e7d32 !important;
+  background: #eef5ec !important;
+}
+
+.campo-invalido {
+  border-color: #c62828 !important;
+  background: #ffebee !important;
+}
+
+.validacion-ok {
+  display: block;
+  font-size: 0.8rem;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+
+.validacion-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #c62828;
+  font-weight: 600;
+  margin-top: 0.3rem;
+}

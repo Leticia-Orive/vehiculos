@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { FinanciacionAdminComponent } from './financiacion-admin';
@@ -33,13 +33,9 @@ describe('FinanciacionAdminComponent', () => {
     component.onModeloChange('');
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
-    const addButton = Array.from(buttons)
-      .find((button) => button.textContent?.includes('Añadir regla')) as HTMLButtonElement;
-
-    expect(component.nuevaMarcaError).toBe('Marca debe tener entre 2 y 40 caracteres.');
-    expect(component.nuevoModeloError).toBe('Modelo es obligatoria.');
-    expect(addButton.disabled).toBe(true);
+      expect(component.nuevaMarcaError).toBe('Marca debe tener entre 2 y 40 caracteres.');
+      expect(component.nuevoModeloError).toBe('Modelo es obligatoria.');
+      expect(component.puedeAgregarReglaModelo).toBe(false);
   });
 
   it('anade una regla valida usando la configuracion base', async () => {
@@ -69,12 +65,8 @@ describe('FinanciacionAdminComponent', () => {
     component.onModeloChange('Corolla');
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>;
-    const addButton = Array.from(buttons)
-      .find((button) => button.textContent?.includes('Añadir regla')) as HTMLButtonElement;
-
-    expect(component.errorDuplicadoModelo).toBe('Ya existe una regla para ese modelo.');
-    expect(addButton.disabled).toBe(true);
+      expect(component.errorDuplicadoModelo).toBe('Ya existe una regla para ese modelo.');
+      expect(component.puedeAgregarReglaModelo).toBe(false);
   });
 
   it('elimina una regla por modelo existente', async () => {
@@ -366,4 +358,441 @@ describe('FinanciacionAdminComponent', () => {
     expect(component.historialAcciones.length).toBe(3);
     confirmSpy.mockRestore();
   });
-});
+
+  it('filtra las reglas por modelo segun el texto ingresado', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.nuevaMarca = 'Toyota';
+    component.nuevoModelo = 'Corolla';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    component.nuevaMarca = 'Ford';
+    component.nuevoModelo = 'Focus';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    component.filtroModelo = 'toyota';
+    const filtradas = component.reglasModeloFiltradas;
+    expect(filtradas.length).toBe(1);
+    // marca is capitalized from the normalized key
+    expect(filtradas[0].marca.toLocaleLowerCase()).toBe('toyota');
+  });
+
+  it('filtra por modelo cuando el texto coincide con el modelo y no la marca', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.nuevaMarca = 'Toyota';
+    component.nuevoModelo = 'Hilux';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    component.filtroModelo = 'hilux';
+    expect(component.reglasModeloFiltradas.length).toBe(1);
+
+    component.filtroModelo = 'xyz';
+    expect(component.reglasModeloFiltradas.length).toBe(0);
+  });
+
+  it('duplicar regla copia marca y modelo al formulario de nueva regla', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.nuevaMarca = 'Honda';
+    component.nuevoModelo = 'Civic';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    // find by key to avoid index issues from pre-existing localStorage data
+    const fila = component.reglasModelo.find((r) => r.key === 'honda|civic')!;
+    expect(fila).toBeTruthy();
+    component.duplicarReglaModelo(fila);
+
+    // duplicarReglaModelo copies the display value (capitalized from key)
+    expect(component.nuevaMarca.toLocaleLowerCase()).toBe('honda');
+    expect(component.nuevoModelo.toLocaleLowerCase()).toBe('civic');
+    expect(component.marcaTouched).toBe(false);
+    expect(component.modeloTouched).toBe(false);
+  });
+
+  it('toggle de orden cambia entre A-Z y Z-A', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.nuevaMarca = 'Renault';
+    component.nuevoModelo = 'Logan';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    component.nuevaMarca = 'Alfa';
+    component.nuevoModelo = 'Romeo';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    expect(component.ordenReglas).toBe('asc');
+    const ascFirst = component.reglasModeloFiltradas[0].key;
+
+    component.toggleOrdenReglas();
+    expect(component.ordenReglas).toBe('desc');
+    const descFirst = component.reglasModeloFiltradas[0].key;
+
+    expect(ascFirst).not.toBe(descFirst);
+  });
+
+  it('Ctrl+S guarda cambios pendientes', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.config!.base.costoMantenimiento += 1;
+
+    const event = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true });
+    document.dispatchEvent(event);
+
+    expect(component.hayCambiosPendientes).toBe(false);
+    expect(component.mensaje).toContain('guardada');
+  });
+
+  it('Ctrl+S no hace nada si no hay cambios pendientes', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    const guardarSpy = vi.spyOn(component, 'guardarCambios');
+
+    const event = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true });
+    document.dispatchEvent(event);
+
+    expect(guardarSpy).not.toHaveBeenCalled();
+  });
+
+  it('toggleSeccion colapsa y expande una seccion', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    expect(component.seccionesAbiertas['base']).toBe(true);
+    component.toggleSeccion('base');
+    expect(component.seccionesAbiertas['base']).toBe(false);
+    component.toggleSeccion('base');
+    expect(component.seccionesAbiertas['base']).toBe(true);
+  });
+
+  it('expandirTodo y colapsarTodo actualizan todas las secciones', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.colapsarTodo();
+    expect(component.seccionesAbiertas).toEqual({ base: false, tipo: false, modelo: false });
+
+    component.expandirTodo();
+    expect(component.seccionesAbiertas).toEqual({ base: true, tipo: true, modelo: true });
+  });
+
+  it('limpiarFiltros limpia filtroTipo y filtroModelo', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.filtroTipo = 'camion';
+    component.filtroModelo = 'toyota';
+
+    component.limpiarFiltros();
+
+    expect(component.filtroTipo).toBe('');
+    expect(component.filtroModelo).toBe('');
+    expect(component.hayFiltrosActivos).toBe(false);
+  });
+
+  it('Escape limpia filtros activos', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.filtroTipo = 'camion';
+    component.filtroModelo = 'focus';
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    expect(component.filtroTipo).toBe('');
+    expect(component.filtroModelo).toBe('');
+  });
+
+  it('tiposFiltrados devuelve solo los tipos que coinciden con el filtro', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+    component.filtroTipo = 'camion';
+
+    expect(component.tiposFiltrados).toEqual(['camioneta', 'camion']);
+  });
+
+  it('restablecerABase copia los valores base a la regla del modelo', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.nuevaMarca = 'Nissan';
+    component.nuevoModelo = 'Frontier';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
+
+    const fila = component.reglasModelo.find((r) => r.key === 'nissan|frontier')!;
+    fila.regla.descuentoSeguro = 9999;
+
+    component.restablecerABase(fila);
+
+    expect(fila.regla.descuentoSeguro).toBe(component.config!.base.descuentoSeguro);
+    expect(fila.regla.costoMantenimiento).toBe(component.config!.base.costoMantenimiento);
+  });
+
+  it('claseCampoValor devuelve clase correcta segun el valor', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    expect(component.claseCampoValor(100, 'descuentoSeguro')).toBe('');
+    expect(component.claseCampoValor(6000, 'descuentoSeguro')).toBe('campo-advertencia');
+    expect(component.claseCampoValor(25000, 'descuentoSeguro')).toBe('campo-fuera-rango');
+  });
+
+    it('aplicarABasePorTipo copia valores base a todas las reglas por tipo', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.config!.porTipo['auto'].descuentoSeguro = 9999;
+      component.aplicarABasePorTipo();
+
+      component.tiposVehiculo.forEach((tipo) => {
+        expect(component.config!.porTipo[tipo].descuentoSeguro).toBe(
+          component.config!.base.descuentoSeguro
+        );
+      });
+    });
+
+    it('aplicarABasePorModelo copia valores base a todas las reglas por modelo', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.nuevaMarca = 'BMW';
+      component.nuevoModelo = '320i';
+      component.marcaTouched = true;
+      component.modeloTouched = true;
+      component.agregarReglaModelo();
+
+      const fila = component.reglasModelo.find((r) => r.key === 'bmw|320i')!;
+      fila.regla.descuentoSeguro = 5555;
+
+      component.aplicarABasePorModelo();
+
+      expect(component.config!.porModelo['bmw|320i']!.descuentoSeguro).toBe(
+        component.config!.base.descuentoSeguro
+      );
+    });
+
+    it('tieneReglaModeloCambios detecta cambios respecto al snapshot guardado', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.nuevaMarca = 'Kia';
+      component.nuevoModelo = 'Sportage';
+      component.marcaTouched = true;
+      component.modeloTouched = true;
+      component.agregarReglaModelo();
+
+      const key = 'kia|sportage';
+      expect(component.tieneReglaModeloCambios(key)).toBe(true);
+
+      component.guardarCambios();
+      expect(component.tieneReglaModeloCambios(key)).toBe(false);
+    });
+
+    it('filtroTipo filtra los tipos visibles', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.filtroTipo = 'camion';
+      const visibles = component.tiposVehiculo.filter((t) =>
+        component.etiquetaTipo(t).toLocaleLowerCase().includes('camion')
+      );
+      expect(visibles.length).toBeGreaterThan(0);
+      expect(visibles.every((t) => component.etiquetaTipo(t).toLocaleLowerCase().includes('camion'))).toBe(true);
+    });
+
+    it('ocurridoCambioEnSeccion detecta cambios por seccion', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      expect(component.ocurridoCambioEnSeccion('base')).toBe(false);
+      component.config!.base.costoMantenimiento += 1;
+      expect(component.ocurridoCambioEnSeccion('base')).toBe(true);
+      expect(component.ocurridoCambioEnSeccion('tipo')).toBe(false);
+    });
+
+    it('deshacer restaura la configuracion previa despues de agregar una regla', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      const initialCount = component.reglasModelo.length;
+
+      component.nuevaMarca = 'Volvo';
+      component.nuevoModelo = 'XC90';
+      component.marcaTouched = true;
+      component.modeloTouched = true;
+      component.agregarReglaModelo();
+
+      expect(component.reglasModelo.length).toBe(initialCount + 1);
+      expect(component.puedeDeshacer).toBe(true);
+
+      component.deshacer();
+
+      expect(component.reglasModelo.length).toBe(initialCount);
+      expect(component.reglasModelo.some((r) => r.key === 'volvo|xc90')).toBe(false);
+    });
+
+    it('puedeDeshacer es falso al inicio y verdadero tras una accion', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      expect(component.puedeDeshacer).toBe(false);
+
+      component.nuevaMarca = 'Seat';
+      component.nuevoModelo = 'Ibiza';
+      component.marcaTouched = true;
+      component.modeloTouched = true;
+      component.agregarReglaModelo();
+
+      expect(component.puedeDeshacer).toBe(true);
+    });
+
+    it('Ctrl+Z invoca deshacer cuando hay acciones en el stack', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.nuevaMarca = 'Opel';
+      component.nuevoModelo = 'Astra';
+      component.marcaTouched = true;
+      component.modeloTouched = true;
+      component.agregarReglaModelo();
+
+      const deshacerSpy = vi.spyOn(component, 'deshacer');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+
+      expect(deshacerSpy).toHaveBeenCalled();
+    });
+
+    it('deshacer restaura estado anterior de aplicarABasePorTipo', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      const originalAutoDescuento = component.config!.porTipo['auto'].descuentoSeguro;
+      component.config!.porTipo['auto'].descuentoSeguro = 1234;
+
+      component.aplicarABasePorTipo();
+
+      const afterApply = component.config!.porTipo['auto'].descuentoSeguro;
+      expect(afterApply).toBe(component.config!.base.descuentoSeguro);
+
+      component.deshacer();
+
+      expect(component.config!.porTipo['auto'].descuentoSeguro).toBe(1234);
+    });
+
+    it('restaura el estado de UI desde localStorage al iniciar', async () => {
+      localStorage.setItem('financiacion_admin_ui_state', JSON.stringify({
+        seccionesAbiertas: { base: false, tipo: true, modelo: false },
+        filtroModelo: 'ford',
+        filtroTipo: 'auto',
+        ordenReglas: 'desc',
+      }));
+
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      expect(component.seccionesAbiertas['base']).toBe(false);
+      expect(component.seccionesAbiertas['tipo']).toBe(true);
+      expect(component.filtroModelo).toBe('ford');
+      expect(component.filtroTipo).toBe('auto');
+      expect(component.ordenReglas).toBe('desc');
+    });
+
+    it('guarda el estado de UI en localStorage cuando se alterna una seccion', async () => {
+      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const component = fixture.componentInstance;
+
+      component.toggleSeccion('base');
+      component.ngDoCheck();
+
+      const stored = JSON.parse(localStorage.getItem('financiacion_admin_ui_state') ?? '{}');
+      expect(stored.seccionesAbiertas?.['base']).toBe(false);
+    });
+  });

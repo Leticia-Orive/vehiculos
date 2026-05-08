@@ -92,3 +92,63 @@
     background: #b71c1c;
   }
 }
+
+.btn-info {
+  background: #1a237e !important;
+  color: white;
+
+  &:hover {
+    background: #0d47a1 !important;
+  }
+}
+
+.btn-warning {
+  background: #f57f17 !important;
+  color: white;
+
+  &:hover {
+    background: #e65100 !important;
+  }
+}
+
+.btn-error {
+  background: #c62828 !important;
+  color: white;
+
+  &:hover {
+    background: #b71c1c !important;
+  }
+}
+
+.btn-success {
+  background: #2e7d32 !important;
+  color: white;
+
+  &:hover {
+    background: #1b5e20 !important;
+  }
+}
+
+.modal-info {
+  .modal-contenido {
+    border-left-color: #1a237e;
+  }
+}
+
+.modal-warning {
+  .modal-contenido {
+    border-left-color: #f57f17;
+  }
+}
+
+.modal-error {
+  .modal-contenido {
+    border-left-color: #c62828;
+  }
+}
+
+.modal-success {
+  .modal-contenido {
+    border-left-color: #2e7d32;
+  }
+}

@@ -1,9 +1,14 @@
-<div class="container">
+<div class="container checkout-container">
 
   <!-- Pantalla de éxito: se muestra tras confirmar la compra -->
   @if (pedidoCompletado) {
     <div class="exito-card">
-      <div class="exito-icono">✅</div>
+      <div class="confetti-wrap" aria-hidden="true">
+        @for (i of confettiItems; track i.id) {
+          <span class="confetti-piece" [style.left.%]="i.left" [style.animationDelay.ms]="i.delay" [style.background]="i.color" [style.animationDuration.ms]="i.duration"></span>
+        }
+      </div>
+      <div class="exito-icono">&#10003;</div>
       <h2>¡Compra realizada con éxito!</h2>
       <!-- El nombre viene del AuthService para personalizar el mensaje -->
       <p>Gracias, <strong>{{ nombreUsuario }}</strong>. Tu pedido ha sido registrado.</p>
@@ -23,6 +28,53 @@
     <!-- Vista de revisión del pedido antes de confirmar -->
     <a routerLink="/carrito" class="btn-volver">&#8592; Volver al carrito</a>
     <h1>Resumen del pedido</h1>
+
+    <!-- Barra de progreso de pasos -->
+    <div class="pasos">
+      <div class="paso completado">
+        <span class="paso-num">✓</span>
+        <span class="paso-label">Carrito</span>
+      </div>
+      <div class="paso-linea completada"></div>
+      <div class="paso activo">
+        <span class="paso-num">2</span>
+        <span class="paso-label">Checkout</span>
+      </div>
+      <div class="paso-linea"></div>
+      <div class="paso">
+        <span class="paso-num">3</span>
+        <span class="paso-label">Confirmación</span>
+      </div>
+    </div>
+
+    <!-- Banner modo financiación preseleccionado -->
+    @if (mostrarBannerFinanciacion) {
+      <div class="banner-financiacion" role="status" aria-live="polite">
+        <span class="banner-icono">💳</span>
+        <span>Modo <strong>financiación</strong> preseleccionado desde el carrito.</span>
+        <button class="btn-cerrar-banner" (click)="cerrarBannerFinanciacion()" aria-label="Cerrar aviso">✕</button>
+      </div>
+    }
+
+    <!-- Resumen comprimido del carrito -->
+    <div class="resumen-carrito-comprimido">
+      <button class="btn-toggle-resumen" (click)="toggleResumenDetallado()">
+        <span class="toggle-icon">{{ mostrarResumenDetallado ? '▼' : '▶' }}</span>
+        <span class="resumen-label">Resumen de pedido</span>
+        <span class="resumen-total">{{ items.length }} item{{ items.length !== 1 ? 's' : '' }} • {{ total | currency:'USD' }}</span>
+      </button>
+      @if (mostrarResumenDetallado) {
+        <div class="resumen-detalle">
+          @for (item of items; track item.vehiculo.id) {
+            <div class="resumen-item">
+              <span class="resumen-item-nombre">{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</span>
+              <span class="resumen-item-qty">x{{ item.cantidad }}</span>
+              <span class="resumen-item-precio">{{ item.vehiculo.precio * item.cantidad | currency:'USD' }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
 
     <!-- Grid de dos columnas: ítems a la izquierda, panel de pago a la derecha -->
     <div class="checkout-grid">
@@ -46,6 +98,103 @@
       <div class="pago-panel">
         <h3>Datos del comprador</h3>
         <p><strong>{{ nombreUsuario }}</strong></p>
+        <hr />
+
+        <!-- Datos de entrega -->
+        <div class="seccion-entrega">
+          <h4>Información de entrega</h4>
+          @if (estadoAutoguardado !== 'idle') {
+            <p class="autosave-indicador" aria-live="polite">
+              @if (estadoAutoguardado === 'saving') {
+                Guardando cambios...
+              } @else {
+                ✓ Guardado
+              }
+            </p>
+          }
+          <div class="progreso-entrega">
+            <div class="progreso-entrega-label">
+              <span>Completitud de entrega</span>
+              <strong>{{ datosEntregaCompletadosCount }}/3</strong>
+            </div>
+            <div class="progreso-entrega-barra">
+              <div class="progreso-entrega-relleno" [style.width.%]="progresoEntrega" [class.completo]="progresoEntrega === 100"></div>
+            </div>
+            @if (progresoEntrega === 100) {
+              <span class="progreso-ok">✓ Entrega completa</span>
+            }
+          </div>
+          <div class="form-grupo-checkout">
+            <label for="email">Email *</label>
+            <input
+              #emailInput
+              id="email"
+              type="email"
+              [(ngModel)]="email"
+              (ngModelChange)="actualizarEmail($event)"
+              (blur)="blurEmail()"
+              name="email"
+              placeholder="tu@email.com"
+              [class.campo-invalido]="(emailTocado && !emailValido) || (intentoConfirmar && !emailValido)"
+              [class.campo-valido]="emailTocado && emailValido"
+              [attr.aria-invalid]="(emailTocado && !emailValido) || (intentoConfirmar && !emailValido)"
+            />
+            @if ((emailTocado || intentoConfirmar) && !emailValido) {
+              <span class="error-pequeño">Email inválido</span>
+            } @else if (emailTocado && emailValido) {
+              <span class="ok-pequeño">✓ Email correcto</span>
+            }
+          </div>
+          <div class="form-grupo-checkout">
+            <label for="direccion">Dirección *</label>
+            <input
+              #direccionInput
+              id="direccion"
+              type="text"
+              [(ngModel)]="direccion"
+              (ngModelChange)="actualizarDireccion($event)"
+              (blur)="blurDireccion()"
+              name="direccion"
+              placeholder="Calle, número, localidad"
+              [class.campo-invalido]="(direccionTocada && !direccion.trim()) || (intentoConfirmar && !direccion.trim())"
+              [class.campo-valido]="direccionTocada && !!direccion.trim()"
+              [attr.aria-invalid]="(direccionTocada && !direccion.trim()) || (intentoConfirmar && !direccion.trim())"
+            />
+            @if ((direccionTocada || intentoConfirmar) && !direccion.trim()) {
+              <span class="error-pequeño">La dirección es obligatoria</span>
+            } @else if (direccionTocada && !!direccion.trim()) {
+              <span class="ok-pequeño">✓ Dirección registrada</span>
+            }
+          </div>
+          <div class="form-grupo-checkout">
+            <label for="telefono">Teléfono *</label>
+            <input
+              #telefonoInput
+              id="telefono"
+              type="tel"
+              inputmode="numeric"
+              autocomplete="tel"
+              [(ngModel)]="telefono"
+              (ngModelChange)="actualizarTelefono($event)"
+              (blur)="blurTelefono()"
+              name="telefono"
+              placeholder="Teléfono de contacto"
+              [class.campo-invalido]="(telefonoTocado && !telefonoValido) || (intentoConfirmar && !telefonoValido)"
+              [class.campo-valido]="telefonoTocado && telefonoValido"
+              [attr.aria-invalid]="(telefonoTocado && !telefonoValido) || (intentoConfirmar && !telefonoValido)"
+            />
+            @if ((telefonoTocado || intentoConfirmar) && !telefonoValido) {
+              <span class="error-pequeño">Mínimo 9 dígitos</span>
+            } @else if (telefonoTocado && telefonoValido) {
+              <span class="ok-pequeño">Formato: {{ telefonoFormateado }}</span>
+            }
+          </div>
+        </div>
+
+        @if (mensajeErrorEntrega) {
+          <p class="error-entrega" aria-live="polite">{{ mensajeErrorEntrega }}</p>
+        }
+
         <hr />
         <div class="pago-total">
           <span>Total a pagar:</span>
@@ -77,6 +226,7 @@
             <div class="financiacion-campos">
               <label for="pagoMensual">¿Cuánto quieres pagar al mes?</label>
               <input
+                #pagoMensualInput
                 id="pagoMensual"
                 type="number"
                 min="1"
@@ -87,6 +237,7 @@
 
               <label for="entradaContado">¿Cuánto quieres ingresar al contado?</label>
               <input
+                #entradaContadoInput
                 id="entradaContado"
                 type="number"
                 min="0"
@@ -128,8 +279,28 @@
         }
         <p class="aviso-pago">💳 Pago simulado — no se realizará ningún cargo real</p>
         <!-- Al confirmar: genera número de pedido y vacía el carrito -->
-        <button class="btn-confirmar-pago" [disabled]="!puedeConfirmarCompra" (click)="confirmarCompra()">Confirmar compra</button>
+        <button class="btn-confirmar-pago" (click)="intentarConfirmarCompra()" [disabled]="botonConfirmarDeshabilitado">
+          @if (!datosEntregaCompletos) {
+            Faltan {{ camposEntregaFaltantes }} campo{{ camposEntregaFaltantes !== 1 ? 's' : '' }}
+          } @else {
+            Confirmar compra
+          }
+        </button>
       </div>
+    </div>
+
+    <div class="mobile-checkout-bar">
+      <div class="mobile-total">
+        <span>Total</span>
+        <strong>{{ total | currency:'USD' }}</strong>
+      </div>
+      <button class="btn-mobile-confirmar" (click)="intentarConfirmarCompra()" [disabled]="botonConfirmarDeshabilitado">
+        @if (!datosEntregaCompletos) {
+          Faltan {{ camposEntregaFaltantes }}
+        } @else {
+          Confirmar
+        }
+      </button>
     </div>
   }
 </div>

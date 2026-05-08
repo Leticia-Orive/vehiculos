@@ -1,7 +1,8 @@
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { FinanciacionConfigService, FinanciacionConfigState } from '../financiacion-config.service';
 import { ReglaFinanciacion } from '../financiacion.config';
 import { Vehiculo } from '../vehiculo.model';
@@ -21,6 +22,17 @@ type ToastTipo = 'info' | 'success' | 'warning';
 interface HistorialAccion {
   descripcion: string;
   hora: Date;
+}
+
+interface ImportacionPreview {
+  baseCambiada: boolean;
+  tiposCambiados: number;
+  modelosNuevos: number;
+  modelosActualizados: number;
+  modelosEliminados: number;
+  clavesModelosNuevos: string[];
+  clavesModelosActualizados: string[];
+  clavesModelosEliminados: string[];
 }
 
 @Component({
@@ -48,6 +60,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   tiposVehiculo: TipoVehiculo[] = ['auto', 'camioneta', 'moto', 'camion'];
 
   reglasModelo: ReglaModeloRow[] = [];
+  filtroModelo: string = '';
+  filtroTipo: string = '';
+  ordenReglas: 'asc' | 'desc' = 'asc';
+  seccionesAbiertas: Record<string, boolean> = { base: true, tipo: true, modelo: true };
   nuevaMarca: string = '';
   nuevoModelo: string = '';
   marcaTouched: boolean = false;
@@ -60,25 +76,42 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   toastVisible: boolean = false;
   toastMensaje: string = '';
   toastTipo: ToastTipo = 'info';
+  importacionTexto: string = '';
+  mostrarImportacionTexto: boolean = false;
+  filtroPreviewKeys: string = '';
+  previewImportacion: ImportacionPreview | null = null;
+  configPrevisualizadaImport: FinanciacionConfigState | null = null;
   private configSnapshot: string = '';
   autosaveEnabled: boolean = false;
   private readonly autosaveStorageKey = 'financiacion_admin_autosave';
+  private readonly uiStateStorageKey = 'financiacion_admin_ui_state';
   private readonly autosaveDelayMs = 1500;
   private autosaveTimer: ReturnType<typeof setTimeout> | null = null;
   private lastObservedConfigSnapshot: string = '';
   private readonly toastDurationMs = 2200;
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
+  private undoStack: FinanciacionConfigState[] = [];
+  private readonly maxUndoLevels = 5;
+  private uiStateSnapshot: string = '';
 
-  constructor(private financiacionConfigService: FinanciacionConfigService) {}
+  constructor(private financiacionConfigService: FinanciacionConfigService, private titleService: Title) {}
 
   ngOnInit(): void {
+    this.titleService.setTitle('Admin Financiación | Vehículos');
     this.autosaveEnabled = localStorage.getItem(this.autosaveStorageKey) === '1';
     this.cargarConfig();
+    this.loadUiState();
   }
 
   ngDoCheck(): void {
     if (!this.config) {
       return;
+    }
+
+    const currentUiState = this.serializeUiState();
+    if (currentUiState !== this.uiStateSnapshot) {
+      this.uiStateSnapshot = currentUiState;
+      localStorage.setItem(this.uiStateStorageKey, currentUiState);
     }
 
     const currentSnapshot = this.serializeConfig(this.config);
@@ -90,6 +123,47 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
 
     if (this.autosaveEnabled && this.hayCambiosPendientes) {
       this.programarAutosave();
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+      event.preventDefault();
+      if (this.hayCambiosPendientes) {
+        this.guardarCambios();
+      }
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'e') {
+      event.preventDefault();
+      this.exportarConfiguracion();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'c') {
+      event.preventDefault();
+      void this.copiarConfiguracion();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'v') {
+      event.preventDefault();
+      this.toggleImportacionTexto();
+      return;
+    }
+
+    if (event.key === 'Escape' && this.hayFiltrosActivos) {
+      this.limpiarFiltros();
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+      event.preventDefault();
+      if (this.puedeDeshacer) {
+        this.deshacer();
+      }
     }
   }
 
@@ -150,6 +224,7 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       return;
     }
 
+    this.pushUndo();
     this.financiacionConfigService.resetConfig();
     this.cargarConfig();
     this.mensaje = 'Configuración restaurada a valores por defecto.';
@@ -170,6 +245,8 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     if (!this.config) {
       return;
     }
+
+    this.pushUndo();
 
     const marca = this.nuevaMarca.trim();
     const modelo = this.nuevoModelo.trim();
@@ -267,12 +344,185 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       && !this.errorDuplicadoModelo;
   }
 
+  get puedeDeshacer(): boolean {
+    return this.undoStack.length > 0;
+  }
+
+  deshacer(): void {
+    const prev = this.undoStack.shift();
+    if (!prev || !this.config) {
+      return;
+    }
+
+    this.config = prev;
+    this.sincronizarReglasModelo();
+    this.error = '';
+    this.advertencias = [];
+    this.registrarAccion('Acción deshecha');
+    this.mostrarToast('Última acción deshecha.', 'info');
+  }
+
+  get tiposFiltrados(): TipoVehiculo[] {
+    const query = this.normalizeSearch(this.filtroTipo);
+    if (!query) {
+      return this.tiposVehiculo;
+    }
+
+    return this.tiposVehiculo.filter((tipo) =>
+      this.normalizeSearch(this.etiquetaTipo(tipo)).includes(query)
+    );
+  }
+
+  get hayFiltrosActivos(): boolean {
+    return this.filtroModelo.trim().length > 0 || this.filtroTipo.trim().length > 0;
+  }
+
+  toggleSeccion(id: string): void {
+    this.seccionesAbiertas[id] = !this.seccionesAbiertas[id];
+  }
+
+  expandirTodo(): void {
+    this.seccionesAbiertas = { base: true, tipo: true, modelo: true };
+  }
+
+  colapsarTodo(): void {
+    this.seccionesAbiertas = { base: false, tipo: false, modelo: false };
+  }
+
+  limpiarFiltros(): void {
+    this.filtroModelo = '';
+    this.filtroTipo = '';
+    this.mostrarToast('Filtros limpiados.', 'info');
+  }
+
+  restablecerABase(fila: ReglaModeloRow): void {
+    if (!this.config) {
+      return;
+    }
+
+    this.pushUndo();
+    fila.regla = { ...this.config.base };
+    this.registrarAccion(`Restablecida a base: ${fila.marca} ${fila.modelo}`);
+    this.mostrarToast(`Valores de "${fila.marca} ${fila.modelo}" restablecidos a la regla base.`, 'info');
+  }
+
+  aplicarABasePorTipo(): void {
+    if (!this.config) {
+      return;
+    }
+
+    this.pushUndo();
+    for (const tipo of this.tiposVehiculo) {
+      this.config.porTipo[tipo] = { ...this.config.base };
+    }
+
+    this.registrarAccion('Todas las reglas por tipo restablecidas a base');
+    this.mostrarToast('Todas las reglas por tipo restablecidas a la base.', 'success');
+  }
+
+  aplicarABasePorModelo(): void {
+    if (!this.config) {
+      return;
+    }
+
+    this.pushUndo();
+    Object.keys(this.config.porModelo).forEach((key) => {
+      this.config!.porModelo[key] = { ...this.config!.base };
+    });
+
+    this.registrarAccion('Todas las reglas por modelo restablecidas a base');
+    this.mostrarToast('Todas las reglas por modelo restablecidas a la base.', 'success');
+  }
+
+  ocurridoCambioEnSeccion(seccion: 'base' | 'tipo' | 'modelo'): boolean {
+    if (!this.config || !this.configSnapshot) {
+      return false;
+    }
+
+    try {
+      const actual = JSON.parse(this.serializeConfig(this.config));
+      const guardada = JSON.parse(this.configSnapshot);
+
+      switch (seccion) {
+        case 'base':
+          return JSON.stringify(actual.base) !== JSON.stringify(guardada.base);
+        case 'tipo':
+          return JSON.stringify(actual.porTipo) !== JSON.stringify(guardada.porTipo);
+        case 'modelo':
+          return JSON.stringify(actual.porModelo) !== JSON.stringify(guardada.porModelo);
+        default:
+          return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  tieneReglaModeloCambios(key: string): boolean {
+    if (!this.config || !this.configSnapshot) {
+      return false;
+    }
+
+    try {
+      const guardada = JSON.parse(this.configSnapshot);
+      const reglaGuardada = guardada.porModelo?.[key];
+      const reglaActual = this.config.porModelo[key];
+      return JSON.stringify(reglaActual) !== JSON.stringify(reglaGuardada);
+    } catch {
+      return false;
+    }
+  }
+
+  claseCampoValor(valor: number, campo: keyof typeof this.limites): string {
+    const l = this.limites[campo];
+    if (valor > l.max || valor < 0) {
+      return 'campo-fuera-rango';
+    }
+
+    if (valor > l.warning) {
+      return 'campo-advertencia';
+    }
+
+    return '';
+  }
+
+  toggleOrdenReglas(): void {
+    this.ordenReglas = this.ordenReglas === 'asc' ? 'desc' : 'asc';
+  }
+
+  get reglasModeloFiltradas(): ReglaModeloRow[] {
+    const q = this.normalizeSearch(this.filtroModelo);
+    const lista = q
+      ? this.reglasModelo.filter(
+          (r) => this.normalizeSearch(r.marca).includes(q) || this.normalizeSearch(r.modelo).includes(q)
+        )
+      : [...this.reglasModelo];
+
+    return lista.sort((a, b) =>
+      this.ordenReglas === 'asc'
+        ? a.key.localeCompare(b.key)
+        : b.key.localeCompare(a.key)
+    );
+  }
+
   get hayCambiosPendientes(): boolean {
     if (!this.config) {
       return false;
     }
 
     return this.serializeConfig(this.config) !== this.configSnapshot;
+  }
+
+  get totalReglasModelo(): number {
+    return this.reglasModelo.length;
+  }
+
+  get totalAdvertenciasActuales(): number {
+    if (!this.config) {
+      return 0;
+    }
+
+    return this.generarAdvertencias().length;
   }
 
   get ultimoGuardadoLabel(): string {
@@ -362,11 +612,20 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     return this.validarTextoModelo(valor, campo);
   }
 
+  duplicarReglaModelo(row: ReglaModeloRow): void {
+    this.nuevaMarca = row.marca;
+    this.nuevoModelo = row.modelo;
+    this.marcaTouched = false;
+    this.modeloTouched = false;
+    this.mostrarToast(`Marca y modelo copiados de "${row.marca} ${row.modelo}". Edítalos y añade la nueva regla.`, 'info');
+  }
+
   eliminarReglaModelo(key: string): void {
     if (!this.config) {
       return;
     }
 
+    this.pushUndo();
     delete this.config.porModelo[key];
     this.sincronizarReglasModelo();
     this.mensaje = 'Regla por modelo eliminada. Guarda los cambios para persistirlo.';
@@ -482,6 +741,12 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   importarConfiguracion(event: Event): void {
+    if (this.hayCambiosPendientes && !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')) {
+      const input = event.target as HTMLInputElement;
+      input.value = '';
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) {
@@ -509,6 +774,216 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     };
 
     reader.readAsText(file);
+  }
+
+  toggleImportacionTexto(): void {
+    this.mostrarImportacionTexto = !this.mostrarImportacionTexto;
+
+    if (!this.mostrarImportacionTexto) {
+      this.limpiarImportacionTexto();
+    }
+  }
+
+  get clavesNuevosFiltradas(): string[] {
+    const f = this.filtroPreviewKeys.trim().toLowerCase();
+    if (!this.previewImportacion) return [];
+    return f
+      ? this.previewImportacion.clavesModelosNuevos.filter(k => k.toLowerCase().includes(f))
+      : this.previewImportacion.clavesModelosNuevos;
+  }
+
+  get clavesActualizadosFiltradas(): string[] {
+    const f = this.filtroPreviewKeys.trim().toLowerCase();
+    if (!this.previewImportacion) return [];
+    return f
+      ? this.previewImportacion.clavesModelosActualizados.filter(k => k.toLowerCase().includes(f))
+      : this.previewImportacion.clavesModelosActualizados;
+  }
+
+  get clavesEliminadosFiltradas(): string[] {
+    const f = this.filtroPreviewKeys.trim().toLowerCase();
+    if (!this.previewImportacion) return [];
+    return f
+      ? this.previewImportacion.clavesModelosEliminados.filter(k => k.toLowerCase().includes(f))
+      : this.previewImportacion.clavesModelosEliminados;
+  }
+
+  limpiarImportacionTexto(): void {
+    this.importacionTexto = '';
+    this.previewImportacion = null;
+    this.configPrevisualizadaImport = null;
+    this.filtroPreviewKeys = '';
+  }
+
+  importarDesdeTexto(): void {
+    const raw = this.importacionTexto.trim();
+    if (!raw) {
+      this.mostrarToast('Pega un JSON para importar.', 'warning');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      const normalizada = this.financiacionConfigService.normalizeConfigPublic(parsed);
+      const configActual = this.config ?? this.financiacionConfigService.getConfig();
+      this.configPrevisualizadaImport = normalizada;
+      this.previewImportacion = this.construirPreviewImportacion(configActual, normalizada);
+      this.error = '';
+      this.mostrarToast('Previsualización lista. Revisa y aplica los cambios.', 'info');
+    } catch {
+      this.previewImportacion = null;
+      this.configPrevisualizadaImport = null;
+      this.error = 'El JSON pegado no es válido para configuración.';
+      this.mostrarToast('No se pudo importar el JSON pegado.', 'warning');
+    }
+  }
+
+  aplicarImportacionPrevisualizada(): void {
+    if (!this.configPrevisualizadaImport) {
+      this.mostrarToast('Primero previsualiza un JSON válido.', 'warning');
+      return;
+    }
+
+    if (this.hayCambiosPendientes && !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')) {
+      return;
+    }
+
+    this.config = this.configPrevisualizadaImport;
+    this.sincronizarReglasModelo();
+    this.error = '';
+    this.advertencias = [];
+    this.mensaje = 'Configuración importada desde texto. Guarda los cambios para persistirla.';
+    this.registrarAccion('Configuración importada desde texto');
+    this.mostrarToast('Configuración importada desde texto.', 'success');
+    this.importacionTexto = '';
+    this.mostrarImportacionTexto = false;
+    this.previewImportacion = null;
+    this.configPrevisualizadaImport = null;
+  }
+
+  private construirPreviewImportacion(actual: FinanciacionConfigState, propuesta: FinanciacionConfigState): ImportacionPreview {
+    const baseCambiada = JSON.stringify(actual.base) !== JSON.stringify(propuesta.base);
+
+    const tiposCambiados = this.tiposVehiculo.reduce((acc, tipo) => {
+      const igual = JSON.stringify(actual.porTipo[tipo]) === JSON.stringify(propuesta.porTipo[tipo]);
+      return igual ? acc : acc + 1;
+    }, 0);
+
+    const actualKeys = new Set(Object.keys(actual.porModelo));
+    const propuestaKeys = new Set(Object.keys(propuesta.porModelo));
+
+    const clavesModelosNuevos: string[] = [];
+    const clavesModelosEliminados: string[] = [];
+    const clavesModelosActualizados: string[] = [];
+
+    for (const key of propuestaKeys) {
+      if (!actualKeys.has(key)) {
+        clavesModelosNuevos.push(key);
+        continue;
+      }
+
+      const actualRegla = actual.porModelo[key];
+      const propuestaRegla = propuesta.porModelo[key];
+      if (JSON.stringify(actualRegla) !== JSON.stringify(propuestaRegla)) {
+        clavesModelosActualizados.push(key);
+      }
+    }
+
+    for (const key of actualKeys) {
+      if (!propuestaKeys.has(key)) {
+        clavesModelosEliminados.push(key);
+      }
+    }
+
+    clavesModelosNuevos.sort((a, b) => a.localeCompare(b));
+    clavesModelosActualizados.sort((a, b) => a.localeCompare(b));
+    clavesModelosEliminados.sort((a, b) => a.localeCompare(b));
+
+    return {
+      baseCambiada,
+      tiposCambiados,
+      modelosNuevos: clavesModelosNuevos.length,
+      modelosActualizados: clavesModelosActualizados.length,
+      modelosEliminados: clavesModelosEliminados.length,
+      clavesModelosNuevos,
+      clavesModelosActualizados,
+      clavesModelosEliminados,
+    };
+  }
+
+  async copiarConfiguracion(): Promise<void> {
+    if (!this.config) {
+      return;
+    }
+
+    const json = JSON.stringify(this.config, null, 2);
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(json);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = json;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
+      this.registrarAccion('Configuración copiada al portapapeles');
+      this.mostrarToast('Configuración copiada al portapapeles.', 'info');
+    } catch {
+      this.mostrarToast('No se pudo copiar la configuración.', 'warning');
+    }
+  }
+
+  private pushUndo(): void {
+    if (!this.config) {
+      return;
+    }
+
+    this.undoStack = [JSON.parse(JSON.stringify(this.config)), ...this.undoStack].slice(0, this.maxUndoLevels);
+  }
+
+  private serializeUiState(): string {
+    return JSON.stringify({
+      seccionesAbiertas: this.seccionesAbiertas,
+      filtroModelo: this.filtroModelo,
+      filtroTipo: this.filtroTipo,
+      ordenReglas: this.ordenReglas,
+    });
+  }
+
+  private loadUiState(): void {
+    try {
+      const stored = localStorage.getItem(this.uiStateStorageKey);
+      if (!stored) {
+        return;
+      }
+
+      const state = JSON.parse(stored);
+      if (state && typeof state.seccionesAbiertas === 'object') {
+        this.seccionesAbiertas = { ...this.seccionesAbiertas, ...state.seccionesAbiertas };
+      }
+
+      if (typeof state.filtroModelo === 'string') {
+        this.filtroModelo = state.filtroModelo;
+      }
+
+      if (typeof state.filtroTipo === 'string') {
+        this.filtroTipo = state.filtroTipo;
+      }
+
+      if (state.ordenReglas === 'asc' || state.ordenReglas === 'desc') {
+        this.ordenReglas = state.ordenReglas;
+      }
+
+      this.uiStateSnapshot = this.serializeUiState();
+    } catch {
+      // ignore malformed state
+    }
   }
 
   private serializeConfig(config: FinanciacionConfigState): string {
@@ -599,6 +1074,18 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     return avisos;
   }
 
+  private capitalize(s: string): string {
+    return s.replace(/\b\w/gu, (c) => c.toLocaleUpperCase());
+  }
+
+  private normalizeSearch(value: string): string {
+    return value
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase();
+  }
+
   private sincronizarReglasModelo(): void {
     if (!this.config) {
       this.reglasModelo = [];
@@ -611,15 +1098,14 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
           return filas;
         }
 
-        const [marca = '', modelo = ''] = key.split('|');
+        const [marcaRaw = '', modeloRaw = ''] = key.split('|');
         filas.push({
           key,
-          marca,
-          modelo,
+          marca: this.capitalize(marcaRaw),
+          modelo: this.capitalize(modeloRaw),
           regla,
         });
         return filas;
-      }, [])
-      .sort((a, b) => a.key.localeCompare(b.key));
+      }, []);
   }
 }

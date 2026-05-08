@@ -1,6 +1,14 @@
-<div class="container">
+<div class="container carrito-container">
   <a routerLink="/" class="btn-volver">&#8592; Volver a la lista</a>
   <h1>🛒 Mi Carrito</h1>
+
+  @if (mostrarToastDeshacer) {
+    <div class="toast-deshacer" role="status" aria-live="polite">
+      <span>{{ toastMensaje }}</span>
+      <button type="button" class="btn-deshacer" (click)="deshacerEliminar()">Deshacer</button>
+      <button type="button" class="btn-cerrar-toast" (click)="cerrarToastDeshacer()" aria-label="Cerrar notificación">&#10005;</button>
+    </div>
+  }
 
   <!-- Si no hay ítems se muestra mensaje vacío -->
   @if (items.length === 0) {
@@ -10,25 +18,39 @@
       <a routerLink="/" class="btn-guardar">Ver vehículos</a>
     </div>
   } @else {
+    <!-- Cabecera con botón de vaciado -->
+    <div class="carrito-cabecera">
+      <span>{{ items.length }} producto{{ items.length !== 1 ? 's' : '' }}</span>
+      <button class="btn-vaciar" (click)="pedirConfirmacionVaciar()">🗑 Vaciar carrito</button>
+    </div>
+
+    <!-- Modal de confirmación para vaciar -->
+    <app-modal-confirmacion
+      [mostrar]="mostrarConfirmacionVaciar"
+      titulo="Vaciar carrito"
+      mensaje="¿Estás seguro de que quieres eliminar todos los productos?"
+      textoBtnConfirmar="Sí, vaciar"
+      textoBtnCancelar="No, cancelar"
+      tipo="warning"
+      (confirmar)="confirmarVaciar()"
+      (cancelar)="cancelarVaciar()"
+    ></app-modal-confirmacion>
+
     <!-- Lista de ítems con imagen, info, control de cantidad y subtotal -->
     <div class="carrito-items">
       @for (item of items; track item.vehiculo.id) {
-        <div class="carrito-item">
+        <div class="carrito-item" [class.restaurado]="esRestaurado(item.vehiculo.id)">
           <img [src]="item.vehiculo.imagen" [alt]="item.vehiculo.marca + ' ' + item.vehiculo.modelo" />
           <div class="item-info">
             <h3>{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</h3>
             <p class="item-precio">{{ item.vehiculo.precio | currency:'USD' }} c/u</p>
             <span class="badge badge-{{ item.vehiculo.tipo }}">{{ item.vehiculo.tipo }}</span>
           </div>
-          <!-- Cambia la cantidad; si llega a 0 el servicio elimina el ítem -->
-          <div class="item-controles">
-            <label>Cantidad</label>
-            <input
-              type="number"
-              [value]="item.cantidad"
-              min="1"
-              (change)="cambiarCantidad(item.vehiculo.id, $event)"
-            />
+          <!-- Stepper +/- de cantidad -->
+          <div class="item-stepper">
+            <button class="stepper-btn" (click)="decrementar(item.vehiculo.id, item.cantidad)" [disabled]="item.cantidad <= 1">−</button>
+            <span class="stepper-valor">{{ item.cantidad }}</span>
+            <button class="stepper-btn" (click)="incrementar(item.vehiculo.id, item.cantidad)">+</button>
           </div>
           <!-- Subtotal = precio × cantidad -->
           <div class="item-subtotal">
@@ -41,13 +63,52 @@
     </div>
 
     <!-- Total y checkout -->
+    <div class="ahorro-estimado" aria-live="polite">
+      <div class="ahorro-header">
+        <h3>Ahorro estimado si financias</h3>
+        <strong>-{{ ahorroTotalEstimado | currency:'USD' }}</strong>
+      </div>
+      <p class="ahorro-nota">Estimación basada en seguro + mantenimientos por reglas de financiación actuales.</p>
+      <button class="btn-toggle-ahorro" (click)="toggleDesgloseAhorro()" [attr.aria-expanded]="mostrarDesgloseAhorro">
+        {{ mostrarDesgloseAhorro ? 'Ocultar desglose' : 'Ver desglose' }}
+      </button>
+      @if (mostrarDesgloseAhorro) {
+        <div class="ahorro-desglose">
+          @for (fila of desgloseAhorroEstimado; track fila.clave) {
+            <p>
+              {{ fila.marca }} {{ fila.modelo }} (x{{ fila.cantidad }}):
+              <strong>-{{ fila.ahorroTotal | currency:'USD' }}</strong>
+            </p>
+          }
+        </div>
+      }
+      <div class="ahorro-total-final">
+        <span>Total potencial tras ahorro:</span>
+        <strong>{{ totalConAhorroEstimado | currency:'USD' }}</strong>
+      </div>
+    </div>
+
     <div class="carrito-resumen">
       <div class="total">
         <span>Total:</span>
         <strong>{{ total | currency:'USD' }}</strong>
       </div>
-      <!-- Navega al checkout para confirmar la compra -->
-      <button class="btn-comprar" (click)="irACheckout()">Proceder al pago →</button>
+      <div class="resumen-acciones">
+        <button class="btn-financiar" (click)="irAFinanciacion()">Ir a financiación</button>
+        <!-- Navega al checkout para confirmar la compra -->
+        <button class="btn-comprar" (click)="irACheckout()">Proceder al pago →</button>
+      </div>
+    </div>
+
+    <div class="mobile-carrito-bar" aria-label="Resumen móvil del carrito">
+      <div class="mobile-total">
+        <span>Total</span>
+        <strong>{{ total | currency:'USD' }}</strong>
+      </div>
+      <div class="mobile-acciones">
+        <button class="btn-mobile-financiar" (click)="irAFinanciacion()">Financiar</button>
+        <button class="btn-mobile-comprar" (click)="irACheckout()">Pagar</button>
+      </div>
     </div>
   }
 </div>

@@ -11,9 +11,42 @@ export interface ItemCarrito {
   providedIn: 'root',
 })
 export class CarritoService {
+  private readonly storageKey = 'vehiculos.carrito.items';
+
   // Lista reactiva de ítems en el carrito
   private itemsSubject = new BehaviorSubject<ItemCarrito[]>([]);
   public items$ = this.itemsSubject.asObservable();
+
+  constructor() {
+    this.restaurarDesdeStorage();
+  }
+
+  private actualizarItems(items: ItemCarrito[]): void {
+    this.itemsSubject.next(items);
+    localStorage.setItem(this.storageKey, JSON.stringify(items));
+  }
+
+  private restaurarDesdeStorage(): void {
+    const raw = localStorage.getItem(this.storageKey);
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as ItemCarrito[];
+      if (!Array.isArray(parsed)) {
+        return;
+      }
+
+      const normalizados = parsed
+        .filter(i => i && i.vehiculo && typeof i.cantidad === 'number' && i.cantidad > 0)
+        .map(i => ({ ...i, cantidad: Math.floor(i.cantidad) }));
+
+      this.itemsSubject.next(normalizados);
+    } catch {
+      localStorage.removeItem(this.storageKey);
+    }
+  }
 
   // Añade un vehículo al carrito; si ya existe incrementa la cantidad
   agregar(vehiculo: Vehiculo): void {
@@ -21,17 +54,15 @@ export class CarritoService {
     const existente = items.find(i => i.vehiculo.id === vehiculo.id);
     if (existente) {
       existente.cantidad += 1;
-      this.itemsSubject.next([...items]);
+      this.actualizarItems([...items]);
     } else {
-      this.itemsSubject.next([...items, { vehiculo, cantidad: 1 }]);
+      this.actualizarItems([...items, { vehiculo, cantidad: 1 }]);
     }
   }
 
   // Elimina un ítem del carrito por id de vehículo
   eliminar(vehiculoId: number): void {
-    this.itemsSubject.next(
-      this.itemsSubject.value.filter(i => i.vehiculo.id !== vehiculoId)
-    );
+    this.actualizarItems(this.itemsSubject.value.filter(i => i.vehiculo.id !== vehiculoId));
   }
 
   // Cambia la cantidad de un ítem; si llega a 0 lo elimina
@@ -43,12 +74,12 @@ export class CarritoService {
     const items = this.itemsSubject.value.map(i =>
       i.vehiculo.id === vehiculoId ? { ...i, cantidad } : i
     );
-    this.itemsSubject.next(items);
+    this.actualizarItems(items);
   }
 
   // Vacía el carrito completo
   limpiar(): void {
-    this.itemsSubject.next([]);
+    this.actualizarItems([]);
   }
 
   // Devuelve el total a pagar

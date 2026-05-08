@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,9 +13,25 @@ export class ModalConfirmacion {
   @Input() mensaje: string = '¿Estás segura?';
   @Input() textoBtnConfirmar: string = 'Confirmar';
   @Input() textoBtnCancelar: string = 'Cancelar';
+  @Input() tipo: 'info' | 'warning' | 'error' | 'success' = 'info';
+  @Input() icono: string = '';
+  @Input() cerrarConEscape: boolean = true;
+  @Input() cerrarAlClickFuera: boolean = true;
+
+  get iconoDefecto(): string {
+    if (this.icono) return this.icono;
+    return { info: 'ℹ', warning: '⚠', error: '❌', success: '✓' }[this.tipo];
+  }
 
   @Output() confirmar = new EventEmitter<void>();
   @Output() cancelar = new EventEmitter<void>();
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.mostrar && this.cerrarConEscape) {
+      this.onCancelar();
+    }
+  }
 
   // Emite evento al confirmar la acción
   onConfirmar(): void {
@@ -25,5 +41,11 @@ export class ModalConfirmacion {
   // Emite evento al cancelar
   onCancelar(): void {
     this.cancelar.emit();
+  }
+
+  onOverlayClick(): void {
+    if (this.cerrarAlClickFuera) {
+      this.onCancelar();
+    }
   }
 }
