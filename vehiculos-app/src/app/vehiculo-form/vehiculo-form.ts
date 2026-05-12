@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,7 +12,10 @@ import { Vehiculo } from '../vehiculo.model';
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.scss',
 })
-export class VehiculoFormComponent implements OnInit {
+export class VehiculoFormComponent implements OnInit, OnDestroy {
+  readonly anioMinimo: number = 1900;
+  readonly anioMaximo: number = new Date().getFullYear() + 2;
+
   // Modo: 'add' para nuevo vehículo, 'edit' para editar uno existente
   modo: 'add' | 'edit' = 'add';
 
@@ -30,6 +33,7 @@ export class VehiculoFormComponent implements OnInit {
 
   errorMensaje: string = '';
   exitoMensaje: string = '';
+  private redirectTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Errores inline por campo
   errores: Partial<Record<string, string>> = {};
@@ -41,24 +45,26 @@ export class VehiculoFormComponent implements OnInit {
 
   // Valida si el formulario está completo (todos los campos requeridos)
   get formularioCompleto(): boolean {
-    return !!this.vehiculo.marca &&
-           !!this.vehiculo.modelo &&
-           !!this.vehiculo.color &&
-           !!this.vehiculo.imagen &&
-           this.vehiculo.precio > 0 &&
-           this.vehiculo.anio >= 1900 &&
-           this.vehiculo.anio <= new Date().getFullYear() + 2;
+    return (
+      !!this.vehiculo.marca.trim() &&
+      !!this.vehiculo.modelo.trim() &&
+      !!this.vehiculo.color.trim() &&
+      !!this.vehiculo.imagen.trim() &&
+      this.vehiculo.precio > 0 &&
+      this.vehiculo.anio >= this.anioMinimo &&
+      this.vehiculo.anio <= this.anioMaximo
+    );
   }
 
   // Cuenta cuántos campos requeridos están completos
   get camposCompletos(): number {
     let count = 0;
-    if (this.vehiculo.marca) count++;
-    if (this.vehiculo.modelo) count++;
-    if (this.vehiculo.color) count++;
-    if (this.vehiculo.imagen) count++;
+    if (this.vehiculo.marca.trim()) count++;
+    if (this.vehiculo.modelo.trim()) count++;
+    if (this.vehiculo.color.trim()) count++;
+    if (this.vehiculo.imagen.trim()) count++;
     if (this.vehiculo.precio > 0) count++;
-    if (this.vehiculo.anio >= 1900 && this.vehiculo.anio <= new Date().getFullYear() + 2) count++;
+    if (this.vehiculo.anio >= this.anioMinimo && this.vehiculo.anio <= this.anioMaximo) count++;
     return count;
   }
 
@@ -68,7 +74,7 @@ export class VehiculoFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private vehiculoService: VehiculoService,
-    private titleService: Title
+    private titleService: Title,
   ) {}
 
   ngOnInit(): void {
@@ -94,12 +100,14 @@ export class VehiculoFormComponent implements OnInit {
     this.errorMensaje = '';
     this.errores = {};
 
+    this.normalizarDatosFormulario();
+
     if (!this.vehiculo.marca) this.errores['marca'] = 'La marca es obligatoria';
     if (!this.vehiculo.modelo) this.errores['modelo'] = 'El modelo es obligatorio';
     if (!this.vehiculo.color) this.errores['color'] = 'El color es obligatorio';
     if (!this.vehiculo.imagen) this.errores['imagen'] = 'La imagen es obligatoria';
     if (this.vehiculo.precio <= 0) this.errores['precio'] = 'El precio debe ser mayor que 0';
-    if (this.vehiculo.anio < 1900 || this.vehiculo.anio > new Date().getFullYear() + 2) {
+    if (this.vehiculo.anio < this.anioMinimo || this.vehiculo.anio > this.anioMaximo) {
       this.errores['anio'] = 'El año no es válido';
     }
 
@@ -113,7 +121,10 @@ export class VehiculoFormComponent implements OnInit {
       this.exitoMensaje = '¡Vehículo actualizado correctamente!';
     }
 
-    setTimeout(() => this.router.navigate(['/']), 1200);
+    this.redirectTimer = setTimeout(() => {
+      this.router.navigate(['/']);
+      this.redirectTimer = null;
+    }, 1200);
   }
 
   get titulo(): string {
@@ -122,6 +133,23 @@ export class VehiculoFormComponent implements OnInit {
 
   onImagenError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="%23e0e0e0"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="%23999">Sin imagen</text></svg>';
+    img.src =
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="%23e0e0e0"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="%23999">Sin imagen</text></svg>';
+  }
+
+  ngOnDestroy(): void {
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = null;
+    }
+  }
+
+  private normalizarDatosFormulario(): void {
+    this.vehiculo.marca = this.vehiculo.marca.trim();
+    this.vehiculo.modelo = this.vehiculo.modelo.trim();
+    this.vehiculo.color = this.vehiculo.color.trim();
+    this.vehiculo.imagen = this.vehiculo.imagen.trim();
+    this.vehiculo.anio = Number(this.vehiculo.anio);
+    this.vehiculo.precio = Number(this.vehiculo.precio);
   }
 }

@@ -12,6 +12,7 @@ export interface ItemCarrito {
 })
 export class CarritoService {
   private readonly storageKey = 'vehiculos.carrito.items';
+  static readonly MAX_CANTIDAD = 99;
 
   // Lista reactiva de ítems en el carrito
   private itemsSubject = new BehaviorSubject<ItemCarrito[]>([]);
@@ -39,8 +40,8 @@ export class CarritoService {
       }
 
       const normalizados = parsed
-        .filter(i => i && i.vehiculo && typeof i.cantidad === 'number' && i.cantidad > 0)
-        .map(i => ({ ...i, cantidad: Math.floor(i.cantidad) }));
+        .filter((i) => i && i.vehiculo && typeof i.cantidad === 'number' && i.cantidad > 0)
+        .map((i) => ({ ...i, cantidad: Math.floor(i.cantidad) }));
 
       this.itemsSubject.next(normalizados);
     } catch {
@@ -48,13 +49,15 @@ export class CarritoService {
     }
   }
 
-  // Añade un vehículo al carrito; si ya existe incrementa la cantidad
+  // Añade un vehículo al carrito; si ya existe incrementa la cantidad hasta MAX_CANTIDAD
   agregar(vehiculo: Vehiculo): void {
     const items = this.itemsSubject.value;
-    const existente = items.find(i => i.vehiculo.id === vehiculo.id);
+    const existente = items.find((i) => i.vehiculo.id === vehiculo.id);
     if (existente) {
-      existente.cantidad += 1;
-      this.actualizarItems([...items]);
+      if (existente.cantidad >= CarritoService.MAX_CANTIDAD) return;
+      this.actualizarItems(
+        items.map((i) => (i.vehiculo.id === vehiculo.id ? { ...i, cantidad: i.cantidad + 1 } : i)),
+      );
     } else {
       this.actualizarItems([...items, { vehiculo, cantidad: 1 }]);
     }
@@ -62,7 +65,7 @@ export class CarritoService {
 
   // Elimina un ítem del carrito por id de vehículo
   eliminar(vehiculoId: number): void {
-    this.actualizarItems(this.itemsSubject.value.filter(i => i.vehiculo.id !== vehiculoId));
+    this.actualizarItems(this.itemsSubject.value.filter((i) => i.vehiculo.id !== vehiculoId));
   }
 
   // Cambia la cantidad de un ítem; si llega a 0 lo elimina
@@ -71,8 +74,9 @@ export class CarritoService {
       this.eliminar(vehiculoId);
       return;
     }
-    const items = this.itemsSubject.value.map(i =>
-      i.vehiculo.id === vehiculoId ? { ...i, cantidad } : i
+    const cantidadFinal = Math.min(Math.floor(cantidad), CarritoService.MAX_CANTIDAD);
+    const items = this.itemsSubject.value.map((i) =>
+      i.vehiculo.id === vehiculoId ? { ...i, cantidad: cantidadFinal } : i,
     );
     this.actualizarItems(items);
   }
@@ -84,10 +88,7 @@ export class CarritoService {
 
   // Devuelve el total a pagar
   get total(): number {
-    return this.itemsSubject.value.reduce(
-      (acc, i) => acc + i.vehiculo.precio * i.cantidad,
-      0
-    );
+    return this.itemsSubject.value.reduce((acc, i) => acc + i.vehiculo.precio * i.cantidad, 0);
   }
 
   // Número total de ítems en el carrito

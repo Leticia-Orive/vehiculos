@@ -27,9 +27,14 @@ export class AuthService {
 
   constructor() {}
 
+  // API pública para validar sesión desde guards/componentes.
+  estaAutenticado(): boolean {
+    return this.tieneSesionActiva();
+  }
+
   // Registra un nuevo usuario; retorna error si el username ya existe
   registrar(username: string, password: string, nombre: string): { ok: boolean; error?: string } {
-    const existe = this.usuariosValidos.find(u => u.username === username);
+    const existe = this.usuariosValidos.find((u) => u.username === username);
     if (existe) {
       return { ok: false, error: 'El usuario ya existe' };
     }
@@ -40,7 +45,7 @@ export class AuthService {
   // Intenta login con usuario y contraseña
   login(username: string, password: string): boolean {
     const usuario = this.usuariosValidos.find(
-      u => u.username === username && u.password === password
+      (u) => u.username === username && u.password === password,
     );
 
     if (usuario) {
@@ -62,7 +67,7 @@ export class AuthService {
   }
 
   // Verifica si hay una sesión activa
-  private estaAutenticado(): boolean {
+  private tieneSesionActiva(): boolean {
     return !!localStorage.getItem('usuario_autenticado');
   }
 

@@ -94,7 +94,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   private readonly maxUndoLevels = 5;
   private uiStateSnapshot: string = '';
 
-  constructor(private financiacionConfigService: FinanciacionConfigService, private titleService: Title) {}
+  constructor(
+    private financiacionConfigService: FinanciacionConfigService,
+    private titleService: Title,
+  ) {}
 
   ngOnInit(): void {
     this.titleService.setTitle('Admin Financiación | Vehículos');
@@ -195,10 +198,14 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     this.ultimoGuardado = new Date();
     this.limpiarAutosaveProgramado();
     this.registrarAccion('Guardado manual');
-    this.mostrarToast('Cambios guardados manualmente.', this.advertencias.length > 0 ? 'warning' : 'success');
-    this.mensaje = this.advertencias.length > 0
-      ? 'Configuración guardada con advertencias.'
-      : 'Configuración guardada correctamente.';
+    this.mostrarToast(
+      'Cambios guardados manualmente.',
+      this.advertencias.length > 0 ? 'warning' : 'success',
+    );
+    this.mensaje =
+      this.advertencias.length > 0
+        ? 'Configuración guardada con advertencias.'
+        : 'Configuración guardada correctamente.';
   }
 
   descartarCambios(): void {
@@ -220,7 +227,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   restaurarPorDefecto(): void {
-    if (this.hayCambiosPendientes && !window.confirm('Tienes cambios sin guardar. ¿Quieres restaurar por defecto?')) {
+    if (
+      this.hayCambiosPendientes &&
+      !window.confirm('Tienes cambios sin guardar. ¿Quieres restaurar por defecto?')
+    ) {
       return;
     }
 
@@ -339,9 +349,11 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       return false;
     }
 
-    return !this.validarCampoModelo(this.nuevaMarca.trim(), 'Marca')
-      && !this.validarCampoModelo(this.nuevoModelo.trim(), 'Modelo')
-      && !this.errorDuplicadoModelo;
+    return (
+      !this.validarCampoModelo(this.nuevaMarca.trim(), 'Marca') &&
+      !this.validarCampoModelo(this.nuevoModelo.trim(), 'Modelo') &&
+      !this.errorDuplicadoModelo
+    );
   }
 
   get puedeDeshacer(): boolean {
@@ -369,7 +381,7 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     }
 
     return this.tiposVehiculo.filter((tipo) =>
-      this.normalizeSearch(this.etiquetaTipo(tipo)).includes(query)
+      this.normalizeSearch(this.etiquetaTipo(tipo)).includes(query),
     );
   }
 
@@ -403,7 +415,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     this.pushUndo();
     fila.regla = { ...this.config.base };
     this.registrarAccion(`Restablecida a base: ${fila.marca} ${fila.modelo}`);
-    this.mostrarToast(`Valores de "${fila.marca} ${fila.modelo}" restablecidos a la regla base.`, 'info');
+    this.mostrarToast(
+      `Valores de "${fila.marca} ${fila.modelo}" restablecidos a la regla base.`,
+      'info',
+    );
   }
 
   aplicarABasePorTipo(): void {
@@ -494,14 +509,13 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     const q = this.normalizeSearch(this.filtroModelo);
     const lista = q
       ? this.reglasModelo.filter(
-          (r) => this.normalizeSearch(r.marca).includes(q) || this.normalizeSearch(r.modelo).includes(q)
+          (r) =>
+            this.normalizeSearch(r.marca).includes(q) || this.normalizeSearch(r.modelo).includes(q),
         )
       : [...this.reglasModelo];
 
     return lista.sort((a, b) =>
-      this.ordenReglas === 'asc'
-        ? a.key.localeCompare(b.key)
-        : b.key.localeCompare(a.key)
+      this.ordenReglas === 'asc' ? a.key.localeCompare(b.key) : b.key.localeCompare(a.key),
     );
   }
 
@@ -617,7 +631,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     this.nuevoModelo = row.modelo;
     this.marcaTouched = false;
     this.modeloTouched = false;
-    this.mostrarToast(`Marca y modelo copiados de "${row.marca} ${row.modelo}". Edítalos y añade la nueva regla.`, 'info');
+    this.mostrarToast(
+      `Marca y modelo copiados de "${row.marca} ${row.modelo}". Edítalos y añade la nueva regla.`,
+      'info',
+    );
   }
 
   eliminarReglaModelo(key: string): void {
@@ -636,11 +653,16 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
 
   etiquetaTipo(tipo: TipoVehiculo): string {
     switch (tipo) {
-      case 'auto': return 'Auto';
-      case 'camioneta': return 'Camioneta';
-      case 'moto': return 'Moto';
-      case 'camion': return 'Camión';
-      default: return tipo;
+      case 'auto':
+        return 'Auto';
+      case 'camioneta':
+        return 'Camioneta';
+      case 'moto':
+        return 'Moto';
+      case 'camion':
+        return 'Camión';
+      default:
+        return tipo;
     }
   }
 
@@ -688,11 +710,12 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     this.registrarAccion('Guardado automático');
     this.mostrarToast(
       this.advertencias.length > 0 ? 'Autosave aplicado con advertencias.' : 'Autosave aplicado.',
-      this.advertencias.length > 0 ? 'warning' : 'success'
+      this.advertencias.length > 0 ? 'warning' : 'success',
     );
-    this.mensaje = this.advertencias.length > 0
-      ? 'Cambios guardados automáticamente con advertencias.'
-      : 'Cambios guardados automáticamente.';
+    this.mensaje =
+      this.advertencias.length > 0
+        ? 'Cambios guardados automáticamente con advertencias.'
+        : 'Cambios guardados automáticamente.';
   }
 
   private tieneErroresValidacion(): boolean {
@@ -700,7 +723,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   private registrarAccion(descripcion: string): void {
-    this.historialAcciones = [{ descripcion, hora: new Date() }, ...this.historialAcciones].slice(0, 3);
+    this.historialAcciones = [{ descripcion, hora: new Date() }, ...this.historialAcciones].slice(
+      0,
+      3,
+    );
   }
 
   private mostrarToast(mensaje: string, tipo: ToastTipo): void {
@@ -741,7 +767,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   importarConfiguracion(event: Event): void {
-    if (this.hayCambiosPendientes && !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')) {
+    if (
+      this.hayCambiosPendientes &&
+      !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')
+    ) {
       const input = event.target as HTMLInputElement;
       input.value = '';
       return;
@@ -762,7 +791,8 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
         this.sincronizarReglasModelo();
         this.error = '';
         this.advertencias = [];
-        this.mensaje = 'Configuración importada correctamente. Guarda los cambios para persistirla.';
+        this.mensaje =
+          'Configuración importada correctamente. Guarda los cambios para persistirla.';
         this.registrarAccion('Configuración importada');
         this.mostrarToast('Configuración importada.', 'success');
       } catch {
@@ -788,7 +818,7 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     const f = this.filtroPreviewKeys.trim().toLowerCase();
     if (!this.previewImportacion) return [];
     return f
-      ? this.previewImportacion.clavesModelosNuevos.filter(k => k.toLowerCase().includes(f))
+      ? this.previewImportacion.clavesModelosNuevos.filter((k) => k.toLowerCase().includes(f))
       : this.previewImportacion.clavesModelosNuevos;
   }
 
@@ -796,7 +826,7 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     const f = this.filtroPreviewKeys.trim().toLowerCase();
     if (!this.previewImportacion) return [];
     return f
-      ? this.previewImportacion.clavesModelosActualizados.filter(k => k.toLowerCase().includes(f))
+      ? this.previewImportacion.clavesModelosActualizados.filter((k) => k.toLowerCase().includes(f))
       : this.previewImportacion.clavesModelosActualizados;
   }
 
@@ -804,7 +834,7 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     const f = this.filtroPreviewKeys.trim().toLowerCase();
     if (!this.previewImportacion) return [];
     return f
-      ? this.previewImportacion.clavesModelosEliminados.filter(k => k.toLowerCase().includes(f))
+      ? this.previewImportacion.clavesModelosEliminados.filter((k) => k.toLowerCase().includes(f))
       : this.previewImportacion.clavesModelosEliminados;
   }
 
@@ -844,7 +874,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       return;
     }
 
-    if (this.hayCambiosPendientes && !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')) {
+    if (
+      this.hayCambiosPendientes &&
+      !window.confirm('Hay cambios sin guardar. ¿Deseas reemplazarlos al importar?')
+    ) {
       return;
     }
 
@@ -861,11 +894,15 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     this.configPrevisualizadaImport = null;
   }
 
-  private construirPreviewImportacion(actual: FinanciacionConfigState, propuesta: FinanciacionConfigState): ImportacionPreview {
+  private construirPreviewImportacion(
+    actual: FinanciacionConfigState,
+    propuesta: FinanciacionConfigState,
+  ): ImportacionPreview {
     const baseCambiada = JSON.stringify(actual.base) !== JSON.stringify(propuesta.base);
 
     const tiposCambiados = this.tiposVehiculo.reduce((acc, tipo) => {
-      const igual = JSON.stringify(actual.porTipo[tipo]) === JSON.stringify(propuesta.porTipo[tipo]);
+      const igual =
+        JSON.stringify(actual.porTipo[tipo]) === JSON.stringify(propuesta.porTipo[tipo]);
       return igual ? acc : acc + 1;
     }, 0);
 
@@ -944,7 +981,10 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       return;
     }
 
-    this.undoStack = [JSON.parse(JSON.stringify(this.config)), ...this.undoStack].slice(0, this.maxUndoLevels);
+    this.undoStack = [JSON.parse(JSON.stringify(this.config)), ...this.undoStack].slice(
+      0,
+      this.maxUndoLevels,
+    );
   }
 
   private serializeUiState(): string {
@@ -1011,7 +1051,9 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     errores.push(...this.validarRegla(this.config.base, 'Regla base'));
 
     for (const tipo of this.tiposVehiculo) {
-      errores.push(...this.validarRegla(this.config.porTipo[tipo], `Tipo ${this.etiquetaTipo(tipo)}`));
+      errores.push(
+        ...this.validarRegla(this.config.porTipo[tipo], `Tipo ${this.etiquetaTipo(tipo)}`),
+      );
     }
 
     for (const fila of this.reglasModelo) {
@@ -1024,16 +1066,34 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   private validarRegla(regla: ReglaFinanciacion, contexto: string): string[] {
     const errores: string[] = [];
 
-    if (!Number.isFinite(regla.descuentoSeguro) || regla.descuentoSeguro < this.limites.descuentoSeguro.min || regla.descuentoSeguro > this.limites.descuentoSeguro.max) {
-      errores.push(`${contexto}: Seguro debe estar entre ${this.limites.descuentoSeguro.min} y ${this.limites.descuentoSeguro.max}.`);
+    if (
+      !Number.isFinite(regla.descuentoSeguro) ||
+      regla.descuentoSeguro < this.limites.descuentoSeguro.min ||
+      regla.descuentoSeguro > this.limites.descuentoSeguro.max
+    ) {
+      errores.push(
+        `${contexto}: Seguro debe estar entre ${this.limites.descuentoSeguro.min} y ${this.limites.descuentoSeguro.max}.`,
+      );
     }
 
-    if (!Number.isFinite(regla.costoMantenimiento) || regla.costoMantenimiento < this.limites.costoMantenimiento.min || regla.costoMantenimiento > this.limites.costoMantenimiento.max) {
-      errores.push(`${contexto}: Mantenimiento debe estar entre ${this.limites.costoMantenimiento.min} y ${this.limites.costoMantenimiento.max}.`);
+    if (
+      !Number.isFinite(regla.costoMantenimiento) ||
+      regla.costoMantenimiento < this.limites.costoMantenimiento.min ||
+      regla.costoMantenimiento > this.limites.costoMantenimiento.max
+    ) {
+      errores.push(
+        `${contexto}: Mantenimiento debe estar entre ${this.limites.costoMantenimiento.min} y ${this.limites.costoMantenimiento.max}.`,
+      );
     }
 
-    if (!Number.isFinite(regla.cantidadMantenimientos) || regla.cantidadMantenimientos < this.limites.cantidadMantenimientos.min || regla.cantidadMantenimientos > this.limites.cantidadMantenimientos.max) {
-      errores.push(`${contexto}: Cantidad de mantenimientos debe estar entre ${this.limites.cantidadMantenimientos.min} y ${this.limites.cantidadMantenimientos.max}.`);
+    if (
+      !Number.isFinite(regla.cantidadMantenimientos) ||
+      regla.cantidadMantenimientos < this.limites.cantidadMantenimientos.min ||
+      regla.cantidadMantenimientos > this.limites.cantidadMantenimientos.max
+    ) {
+      errores.push(
+        `${contexto}: Cantidad de mantenimientos debe estar entre ${this.limites.cantidadMantenimientos.min} y ${this.limites.cantidadMantenimientos.max}.`,
+      );
     }
 
     return errores;
@@ -1048,11 +1108,15 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
     advertencias.push(...this.advertenciasRegla(this.config.base, 'Regla base'));
 
     for (const tipo of this.tiposVehiculo) {
-      advertencias.push(...this.advertenciasRegla(this.config.porTipo[tipo], `Tipo ${this.etiquetaTipo(tipo)}`));
+      advertencias.push(
+        ...this.advertenciasRegla(this.config.porTipo[tipo], `Tipo ${this.etiquetaTipo(tipo)}`),
+      );
     }
 
     for (const fila of this.reglasModelo) {
-      advertencias.push(...this.advertenciasRegla(fila.regla, `Modelo ${fila.marca} ${fila.modelo}`));
+      advertencias.push(
+        ...this.advertenciasRegla(fila.regla, `Modelo ${fila.marca} ${fila.modelo}`),
+      );
     }
 
     return advertencias;
@@ -1068,7 +1132,9 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       avisos.push(`${contexto}: Mantenimiento alto (${regla.costoMantenimiento}).`);
     }
     if (regla.cantidadMantenimientos > this.limites.cantidadMantenimientos.warning) {
-      avisos.push(`${contexto}: Cantidad de mantenimientos alta (${regla.cantidadMantenimientos}).`);
+      avisos.push(
+        `${contexto}: Cantidad de mantenimientos alta (${regla.cantidadMantenimientos}).`,
+      );
     }
 
     return avisos;
@@ -1092,8 +1158,8 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
       return;
     }
 
-    this.reglasModelo = Object.entries(this.config.porModelo)
-      .reduce<ReglaModeloRow[]>((filas, [key, regla]) => {
+    this.reglasModelo = Object.entries(this.config.porModelo).reduce<ReglaModeloRow[]>(
+      (filas, [key, regla]) => {
         if (!regla) {
           return filas;
         }
@@ -1106,6 +1172,8 @@ export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
           regla,
         });
         return filas;
-      }, []);
+      },
+      [],
+    );
   }
 }

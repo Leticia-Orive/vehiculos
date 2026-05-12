@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -11,7 +11,7 @@ import { AuthService } from '../auth.service';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
   // Datos del formulario
   nombre: string = '';
   username: string = '';
@@ -27,9 +27,15 @@ export class RegisterComponent {
   // Toggle visibilidad contraseñas
   mostrarPassword: boolean = false;
   mostrarConfirmar: boolean = false;
+  private registerTimer: ReturnType<typeof setTimeout> | null = null;
+  private redirectTimer: ReturnType<typeof setTimeout> | null = null;
 
-  togglePassword(): void { this.mostrarPassword = !this.mostrarPassword; }
-  toggleConfirmar(): void { this.mostrarConfirmar = !this.mostrarConfirmar; }
+  togglePassword(): void {
+    this.mostrarPassword = !this.mostrarPassword;
+  }
+  toggleConfirmar(): void {
+    this.mostrarConfirmar = !this.mostrarConfirmar;
+  }
 
   // Email válido y contraseñas coinciden
   get emailValido(): boolean {
@@ -41,8 +47,14 @@ export class RegisterComponent {
   }
 
   get formularioValido(): boolean {
-    return !!this.nombre && !!this.username && this.username.length >= 3 &&
-           this.emailValido && this.password.length >= 6 && this.contraseniasCoinciden;
+    return (
+      !!this.nombre &&
+      !!this.username &&
+      this.username.length >= 3 &&
+      this.emailValido &&
+      this.password.length >= 6 &&
+      this.contraseniasCoinciden
+    );
   }
 
   // Fortaleza de contraseña (0-4)
@@ -50,7 +62,7 @@ export class RegisterComponent {
     const p = this.password;
     if (!p) return 0;
     let score = 0;
-    if (p.length >= 6)  score++;
+    if (p.length >= 6) score++;
     if (p.length >= 10) score++;
     if (/[A-Z]/.test(p)) score++;
     if (/[0-9]/.test(p)) score++;
@@ -65,7 +77,11 @@ export class RegisterComponent {
     return ['', 'debil', 'regular', 'buena', 'fuerte'][this.fuerzaPassword];
   }
 
-  constructor(private authService: AuthService, private router: Router, private titleService: Title) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private titleService: Title,
+  ) {
     this.titleService.setTitle('Crear cuenta | Vehículos');
   }
 
@@ -74,7 +90,21 @@ export class RegisterComponent {
     this.errorMensaje = '';
     this.exitoMensaje = '';
 
-    if (!this.nombre || !this.username || !this.email || !this.password || !this.confirmarPassword) {
+    if (this.cargando) {
+      return;
+    }
+
+    this.nombre = this.nombre.trim();
+    this.username = this.username.trim().toLowerCase();
+    this.email = this.email.trim().toLowerCase();
+
+    if (
+      !this.nombre ||
+      !this.username ||
+      !this.email ||
+      !this.password ||
+      !this.confirmarPassword
+    ) {
       this.errorMensaje = 'Por favor completa todos los campos';
       return;
     }
@@ -102,17 +132,32 @@ export class RegisterComponent {
 
     this.cargando = true;
 
-    setTimeout(() => {
+    this.registerTimer = setTimeout(() => {
       const resultado = this.authService.registrar(this.username, this.password, this.nombre);
       this.cargando = false;
+      this.registerTimer = null;
 
       if (resultado.ok) {
         // Muestra mensaje de éxito y redirige al login tras 1.5s
         this.exitoMensaje = '¡Cuenta creada con éxito! Redirigiendo al login...';
-        setTimeout(() => this.router.navigate(['/login']), 1500);
+        this.redirectTimer = setTimeout(() => {
+          this.router.navigate(['/login']);
+          this.redirectTimer = null;
+        }, 1500);
       } else {
         this.errorMensaje = resultado.error || 'Error al registrar el usuario';
       }
     }, 500);
+  }
+
+  ngOnDestroy(): void {
+    if (this.registerTimer) {
+      clearTimeout(this.registerTimer);
+      this.registerTimer = null;
+    }
+    if (this.redirectTimer) {
+      clearTimeout(this.redirectTimer);
+      this.redirectTimer = null;
+    }
   }
 }

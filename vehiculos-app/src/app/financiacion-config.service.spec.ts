@@ -35,20 +35,23 @@ describe('FinanciacionConfigService', () => {
   });
 
   it('ignora entradas invalidas y recupera fallback cuando localStorage esta corrupto', () => {
-    localStorage.setItem('financiacion_config_v1', JSON.stringify({
-      porModelo: {
-        '   |   ': {
-          descuentoSeguro: 200,
-          costoMantenimiento: 100,
-          cantidadMantenimientos: 3,
+    localStorage.setItem(
+      'financiacion_config_v1',
+      JSON.stringify({
+        porModelo: {
+          '   |   ': {
+            descuentoSeguro: 200,
+            costoMantenimiento: 100,
+            cantidadMantenimientos: 3,
+          },
         },
-      },
-      base: {
-        descuentoSeguro: -1,
-        costoMantenimiento: Number.NaN,
-        cantidadMantenimientos: -10,
-      },
-    }));
+        base: {
+          descuentoSeguro: -1,
+          costoMantenimiento: Number.NaN,
+          cantidadMantenimientos: -10,
+        },
+      }),
+    );
 
     const normalized = service.getConfig();
 

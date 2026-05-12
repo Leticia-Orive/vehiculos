@@ -33,9 +33,9 @@ describe('FinanciacionAdminComponent', () => {
     component.onModeloChange('');
     fixture.detectChanges();
 
-      expect(component.nuevaMarcaError).toBe('Marca debe tener entre 2 y 40 caracteres.');
-      expect(component.nuevoModeloError).toBe('Modelo es obligatoria.');
-      expect(component.puedeAgregarReglaModelo).toBe(false);
+    expect(component.nuevaMarcaError).toBe('Marca debe tener entre 2 y 40 caracteres.');
+    expect(component.nuevoModeloError).toBe('Modelo es obligatoria.');
+    expect(component.puedeAgregarReglaModelo).toBe(false);
   });
 
   it('anade una regla valida usando la configuracion base', async () => {
@@ -65,8 +65,8 @@ describe('FinanciacionAdminComponent', () => {
     component.onModeloChange('Corolla');
     fixture.detectChanges();
 
-      expect(component.errorDuplicadoModelo).toBe('Ya existe una regla para ese modelo.');
-      expect(component.puedeAgregarReglaModelo).toBe(false);
+    expect(component.errorDuplicadoModelo).toBe('Ya existe una regla para ese modelo.');
+    expect(component.puedeAgregarReglaModelo).toBe(false);
   });
 
   it('elimina una regla por modelo existente', async () => {
@@ -282,7 +282,11 @@ describe('FinanciacionAdminComponent', () => {
     const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue(mockUrl);
     const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockReturnValue(undefined);
     const clickSpy = vi.fn();
-    vi.spyOn(document, 'createElement').mockReturnValue({ href: '', download: '', click: clickSpy } as unknown as HTMLAnchorElement);
+    vi.spyOn(document, 'createElement').mockReturnValue({
+      href: '',
+      download: '',
+      click: clickSpy,
+    } as unknown as HTMLAnchorElement);
 
     component.exportarConfiguracion();
 
@@ -303,12 +307,18 @@ describe('FinanciacionAdminComponent', () => {
 
     await new Promise<void>((resolve) => {
       vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(function (this: FileReader) {
-        Object.defineProperty(this, 'result', { value: JSON.stringify(configExportada), configurable: true });
+        Object.defineProperty(this, 'result', {
+          value: JSON.stringify(configExportada),
+          configurable: true,
+        });
         this.onload?.({} as ProgressEvent<FileReader>);
         resolve();
       });
 
-      const input = { files: [new File([], 'config.json')], value: '' } as unknown as HTMLInputElement;
+      const input = {
+        files: [new File([], 'config.json')],
+        value: '',
+      } as unknown as HTMLInputElement;
       component.importarConfiguracion({ target: input } as unknown as Event);
     });
 
@@ -592,207 +602,214 @@ describe('FinanciacionAdminComponent', () => {
     expect(component.claseCampoValor(25000, 'descuentoSeguro')).toBe('campo-fuera-rango');
   });
 
-    it('aplicarABasePorTipo copia valores base a todas las reglas por tipo', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+  it('aplicarABasePorTipo copia valores base a todas las reglas por tipo', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      const component = fixture.componentInstance;
+    const component = fixture.componentInstance;
 
-      component.config!.porTipo['auto'].descuentoSeguro = 9999;
-      component.aplicarABasePorTipo();
+    component.config!.porTipo['auto'].descuentoSeguro = 9999;
+    component.aplicarABasePorTipo();
 
-      component.tiposVehiculo.forEach((tipo) => {
-        expect(component.config!.porTipo[tipo].descuentoSeguro).toBe(
-          component.config!.base.descuentoSeguro
-        );
-      });
-    });
-
-    it('aplicarABasePorModelo copia valores base a todas las reglas por modelo', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const component = fixture.componentInstance;
-
-      component.nuevaMarca = 'BMW';
-      component.nuevoModelo = '320i';
-      component.marcaTouched = true;
-      component.modeloTouched = true;
-      component.agregarReglaModelo();
-
-      const fila = component.reglasModelo.find((r) => r.key === 'bmw|320i')!;
-      fila.regla.descuentoSeguro = 5555;
-
-      component.aplicarABasePorModelo();
-
-      expect(component.config!.porModelo['bmw|320i']!.descuentoSeguro).toBe(
-        component.config!.base.descuentoSeguro
+    component.tiposVehiculo.forEach((tipo) => {
+      expect(component.config!.porTipo[tipo].descuentoSeguro).toBe(
+        component.config!.base.descuentoSeguro,
       );
     });
+  });
 
-    it('tieneReglaModeloCambios detecta cambios respecto al snapshot guardado', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+  it('aplicarABasePorModelo copia valores base a todas las reglas por modelo', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      const component = fixture.componentInstance;
+    const component = fixture.componentInstance;
 
-      component.nuevaMarca = 'Kia';
-      component.nuevoModelo = 'Sportage';
-      component.marcaTouched = true;
-      component.modeloTouched = true;
-      component.agregarReglaModelo();
+    component.nuevaMarca = 'BMW';
+    component.nuevoModelo = '320i';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
 
-      const key = 'kia|sportage';
-      expect(component.tieneReglaModeloCambios(key)).toBe(true);
+    const fila = component.reglasModelo.find((r) => r.key === 'bmw|320i')!;
+    fila.regla.descuentoSeguro = 5555;
 
-      component.guardarCambios();
-      expect(component.tieneReglaModeloCambios(key)).toBe(false);
-    });
+    component.aplicarABasePorModelo();
 
-    it('filtroTipo filtra los tipos visibles', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    expect(component.config!.porModelo['bmw|320i']!.descuentoSeguro).toBe(
+      component.config!.base.descuentoSeguro,
+    );
+  });
 
-      const component = fixture.componentInstance;
+  it('tieneReglaModeloCambios detecta cambios respecto al snapshot guardado', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      component.filtroTipo = 'camion';
-      const visibles = component.tiposVehiculo.filter((t) =>
-        component.etiquetaTipo(t).toLocaleLowerCase().includes('camion')
-      );
-      expect(visibles.length).toBeGreaterThan(0);
-      expect(visibles.every((t) => component.etiquetaTipo(t).toLocaleLowerCase().includes('camion'))).toBe(true);
-    });
+    const component = fixture.componentInstance;
 
-    it('ocurridoCambioEnSeccion detecta cambios por seccion', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    component.nuevaMarca = 'Kia';
+    component.nuevoModelo = 'Sportage';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
 
-      const component = fixture.componentInstance;
+    const key = 'kia|sportage';
+    expect(component.tieneReglaModeloCambios(key)).toBe(true);
 
-      expect(component.ocurridoCambioEnSeccion('base')).toBe(false);
-      component.config!.base.costoMantenimiento += 1;
-      expect(component.ocurridoCambioEnSeccion('base')).toBe(true);
-      expect(component.ocurridoCambioEnSeccion('tipo')).toBe(false);
-    });
+    component.guardarCambios();
+    expect(component.tieneReglaModeloCambios(key)).toBe(false);
+  });
 
-    it('deshacer restaura la configuracion previa despues de agregar una regla', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+  it('filtroTipo filtra los tipos visibles', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      const component = fixture.componentInstance;
+    const component = fixture.componentInstance;
 
-      const initialCount = component.reglasModelo.length;
+    component.filtroTipo = 'camion';
+    const visibles = component.tiposVehiculo.filter((t) =>
+      component.etiquetaTipo(t).toLocaleLowerCase().includes('camion'),
+    );
+    expect(visibles.length).toBeGreaterThan(0);
+    expect(
+      visibles.every((t) => component.etiquetaTipo(t).toLocaleLowerCase().includes('camion')),
+    ).toBe(true);
+  });
 
-      component.nuevaMarca = 'Volvo';
-      component.nuevoModelo = 'XC90';
-      component.marcaTouched = true;
-      component.modeloTouched = true;
-      component.agregarReglaModelo();
+  it('ocurridoCambioEnSeccion detecta cambios por seccion', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      expect(component.reglasModelo.length).toBe(initialCount + 1);
-      expect(component.puedeDeshacer).toBe(true);
+    const component = fixture.componentInstance;
 
-      component.deshacer();
+    expect(component.ocurridoCambioEnSeccion('base')).toBe(false);
+    component.config!.base.costoMantenimiento += 1;
+    expect(component.ocurridoCambioEnSeccion('base')).toBe(true);
+    expect(component.ocurridoCambioEnSeccion('tipo')).toBe(false);
+  });
 
-      expect(component.reglasModelo.length).toBe(initialCount);
-      expect(component.reglasModelo.some((r) => r.key === 'volvo|xc90')).toBe(false);
-    });
+  it('deshacer restaura la configuracion previa despues de agregar una regla', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-    it('puedeDeshacer es falso al inicio y verdadero tras una accion', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    const component = fixture.componentInstance;
 
-      const component = fixture.componentInstance;
+    const initialCount = component.reglasModelo.length;
 
-      expect(component.puedeDeshacer).toBe(false);
+    component.nuevaMarca = 'Volvo';
+    component.nuevoModelo = 'XC90';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
 
-      component.nuevaMarca = 'Seat';
-      component.nuevoModelo = 'Ibiza';
-      component.marcaTouched = true;
-      component.modeloTouched = true;
-      component.agregarReglaModelo();
+    expect(component.reglasModelo.length).toBe(initialCount + 1);
+    expect(component.puedeDeshacer).toBe(true);
 
-      expect(component.puedeDeshacer).toBe(true);
-    });
+    component.deshacer();
 
-    it('Ctrl+Z invoca deshacer cuando hay acciones en el stack', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    expect(component.reglasModelo.length).toBe(initialCount);
+    expect(component.reglasModelo.some((r) => r.key === 'volvo|xc90')).toBe(false);
+  });
 
-      const component = fixture.componentInstance;
+  it('puedeDeshacer es falso al inicio y verdadero tras una accion', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      component.nuevaMarca = 'Opel';
-      component.nuevoModelo = 'Astra';
-      component.marcaTouched = true;
-      component.modeloTouched = true;
-      component.agregarReglaModelo();
+    const component = fixture.componentInstance;
 
-      const deshacerSpy = vi.spyOn(component, 'deshacer');
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+    expect(component.puedeDeshacer).toBe(false);
 
-      expect(deshacerSpy).toHaveBeenCalled();
-    });
+    component.nuevaMarca = 'Seat';
+    component.nuevoModelo = 'Ibiza';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
 
-    it('deshacer restaura estado anterior de aplicarABasePorTipo', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    expect(component.puedeDeshacer).toBe(true);
+  });
 
-      const component = fixture.componentInstance;
+  it('Ctrl+Z invoca deshacer cuando hay acciones en el stack', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      const originalAutoDescuento = component.config!.porTipo['auto'].descuentoSeguro;
-      component.config!.porTipo['auto'].descuentoSeguro = 1234;
+    const component = fixture.componentInstance;
 
-      component.aplicarABasePorTipo();
+    component.nuevaMarca = 'Opel';
+    component.nuevoModelo = 'Astra';
+    component.marcaTouched = true;
+    component.modeloTouched = true;
+    component.agregarReglaModelo();
 
-      const afterApply = component.config!.porTipo['auto'].descuentoSeguro;
-      expect(afterApply).toBe(component.config!.base.descuentoSeguro);
+    const deshacerSpy = vi.spyOn(component, 'deshacer');
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }),
+    );
 
-      component.deshacer();
+    expect(deshacerSpy).toHaveBeenCalled();
+  });
 
-      expect(component.config!.porTipo['auto'].descuentoSeguro).toBe(1234);
-    });
+  it('deshacer restaura estado anterior de aplicarABasePorTipo', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-    it('restaura el estado de UI desde localStorage al iniciar', async () => {
-      localStorage.setItem('financiacion_admin_ui_state', JSON.stringify({
+    const component = fixture.componentInstance;
+
+    const originalAutoDescuento = component.config!.porTipo['auto'].descuentoSeguro;
+    component.config!.porTipo['auto'].descuentoSeguro = 1234;
+
+    component.aplicarABasePorTipo();
+
+    const afterApply = component.config!.porTipo['auto'].descuentoSeguro;
+    expect(afterApply).toBe(component.config!.base.descuentoSeguro);
+
+    component.deshacer();
+
+    expect(component.config!.porTipo['auto'].descuentoSeguro).toBe(1234);
+  });
+
+  it('restaura el estado de UI desde localStorage al iniciar', async () => {
+    localStorage.setItem(
+      'financiacion_admin_ui_state',
+      JSON.stringify({
         seccionesAbiertas: { base: false, tipo: true, modelo: false },
         filtroModelo: 'ford',
         filtroTipo: 'auto',
         ordenReglas: 'desc',
-      }));
+      }),
+    );
 
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-      const component = fixture.componentInstance;
+    const component = fixture.componentInstance;
 
-      expect(component.seccionesAbiertas['base']).toBe(false);
-      expect(component.seccionesAbiertas['tipo']).toBe(true);
-      expect(component.filtroModelo).toBe('ford');
-      expect(component.filtroTipo).toBe('auto');
-      expect(component.ordenReglas).toBe('desc');
-    });
-
-    it('guarda el estado de UI en localStorage cuando se alterna una seccion', async () => {
-      const fixture = TestBed.createComponent(FinanciacionAdminComponent);
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const component = fixture.componentInstance;
-
-      component.toggleSeccion('base');
-      component.ngDoCheck();
-
-      const stored = JSON.parse(localStorage.getItem('financiacion_admin_ui_state') ?? '{}');
-      expect(stored.seccionesAbiertas?.['base']).toBe(false);
-    });
+    expect(component.seccionesAbiertas['base']).toBe(false);
+    expect(component.seccionesAbiertas['tipo']).toBe(true);
+    expect(component.filtroModelo).toBe('ford');
+    expect(component.filtroTipo).toBe('auto');
+    expect(component.ordenReglas).toBe('desc');
   });
+
+  it('guarda el estado de UI en localStorage cuando se alterna una seccion', async () => {
+    const fixture = TestBed.createComponent(FinanciacionAdminComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const component = fixture.componentInstance;
+
+    component.toggleSeccion('base');
+    component.ngDoCheck();
+
+    const stored = JSON.parse(localStorage.getItem('financiacion_admin_ui_state') ?? '{}');
+    expect(stored.seccionesAbiertas?.['base']).toBe(false);
+  });
+});

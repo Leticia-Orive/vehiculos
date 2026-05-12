@@ -17,13 +17,25 @@ export const routes: Routes = [
 
   // Rutas protegidas por autenticación
   { path: '', component: VehiculoLista, canActivate: [authGuard] },
-  { path: 'vehiculo/nuevo', component: VehiculoFormComponent, canActivate: [authGuard, adminGuard] },
+  {
+    path: 'vehiculo/nuevo',
+    component: VehiculoFormComponent,
+    canActivate: [authGuard, adminGuard],
+  },
   { path: 'vehiculo/:id', component: VehiculoDetalle, canActivate: [authGuard] },
-  { path: 'vehiculo/:id/editar', component: VehiculoFormComponent, canActivate: [authGuard, adminGuard] },
+  {
+    path: 'vehiculo/:id/editar',
+    component: VehiculoFormComponent,
+    canActivate: [authGuard, adminGuard],
+  },
   { path: 'carrito', component: CarritoComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
-  { path: 'admin/financiacion', component: FinanciacionAdminComponent, canActivate: [authGuard, adminGuard] },
+  {
+    path: 'admin/financiacion',
+    component: FinanciacionAdminComponent,
+    canActivate: [authGuard, adminGuard],
+  },
 
   // Redireccion por defecto
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/login' },
 ];

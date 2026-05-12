@@ -18,6 +18,8 @@
           [(ngModel)]="username"
           name="username"
           placeholder="Ej: admin"
+          autocomplete="username"
+          required
           [disabled]="cargando"
           autofocus
         />
@@ -33,9 +35,16 @@
             [(ngModel)]="password"
             name="password"
             placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+            required
             [disabled]="cargando"
           />
-          <button type="button" class="btn-toggle-password" (click)="togglePassword()" [title]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <button
+            type="button"
+            class="btn-toggle-password"
+            (click)="togglePassword()"
+            [title]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
             {{ mostrarPassword ? '🙈' : '👁' }}
           </button>
         </div>
@@ -62,17 +71,11 @@
     <!-- Sugerencias de demo -->
     <div class="demo-sugerencias">
       <p>Credenciales de prueba:</p>
-      <button type="button" (click)="cargarDemoAdmin()" class="btn-demo">
-        Admin
-      </button>
-      <button type="button" (click)="cargarDemoUser()" class="btn-demo">
-        Usuario
-      </button>
+      <button type="button" (click)="cargarDemoAdmin()" class="btn-demo">Admin</button>
+      <button type="button" (click)="cargarDemoUser()" class="btn-demo">Usuario</button>
     </div>
 
     <!-- Link al registro -->
-    <div class="link-alternativo">
-      ¿No tienes cuenta? <a routerLink="/register">Regístrate</a>
-    </div>
+    <div class="link-alternativo">¿No tienes cuenta? <a routerLink="/register">Regístrate</a></div>
   </div>
 </div>

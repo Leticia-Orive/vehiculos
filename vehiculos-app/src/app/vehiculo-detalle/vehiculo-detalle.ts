@@ -30,6 +30,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   cantidadEnCarrito: number = 0;
   private routeSub!: Subscription;
   private cartSub?: Subscription;
+  private adminSub?: Subscription;
   private mensajeTimer: ReturnType<typeof setTimeout> | null = null;
   private animacionTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -39,21 +40,26 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
     private authService: AuthService,
     private carritoService: CarritoService,
     private router: Router,
-    private titleService: Title
+    private titleService: Title,
   ) {}
 
   ngOnInit(): void {
     this.esAdmin = this.authService.esAdmin();
-    // Sincroniza el contador local con el estado real del carrito en tiempo real.
-    this.cartSub = this.carritoService.items$.subscribe(items => {
-      this.cantidadEnCarrito = items.find(i => i.vehiculo.id === this.vehiculo?.id)?.cantidad ?? 0;
+    this.adminSub = this.authService.autenticado$.subscribe(() => {
+      this.esAdmin = this.authService.esAdmin();
     });
-    this.routeSub = this.route.paramMap.subscribe(params => {
+    // Sincroniza el contador local con el estado real del carrito en tiempo real.
+    this.cartSub = this.carritoService.items$.subscribe((items) => {
+      this.cantidadEnCarrito =
+        items.find((i) => i.vehiculo.id === this.vehiculo?.id)?.cantidad ?? 0;
+    });
+    this.routeSub = this.route.paramMap.subscribe((params) => {
       const id = Number(params.get('id'));
       this.vehiculo = this.vehiculoService.getVehiculoPorId(id);
       if (this.vehiculo) {
         this.titleService.setTitle(`${this.vehiculo.marca} ${this.vehiculo.modelo} | Vehículos`);
-        this.cantidadEnCarrito = this.carritoService.items.find(i => i.vehiculo.id === this.vehiculo?.id)?.cantidad ?? 0;
+        this.cantidadEnCarrito =
+          this.carritoService.items.find((i) => i.vehiculo.id === this.vehiculo?.id)?.cantidad ?? 0;
       } else {
         this.titleService.setTitle('Vehículo no encontrado | Vehículos');
       }
@@ -65,6 +71,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
     this.cartSub?.unsubscribe();
+    this.adminSub?.unsubscribe();
     // Limpieza defensiva de timers para evitar efectos tardíos al salir de la vista.
     if (this.mensajeTimer) {
       clearTimeout(this.mensajeTimer);
@@ -77,10 +84,13 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
   }
 
   private cargarRelacionados(): void {
-    if (!this.vehiculo) { this.vehiculosRelacionados = []; return; }
+    if (!this.vehiculo) {
+      this.vehiculosRelacionados = [];
+      return;
+    }
     this.vehiculosRelacionados = this.vehiculoService
       .getVehiculos()
-      .filter(v => v.tipo === this.vehiculo!.tipo && v.id !== this.vehiculo!.id)
+      .filter((v) => v.tipo === this.vehiculo!.tipo && v.id !== this.vehiculo!.id)
       .slice(0, 3);
   }
 
@@ -136,7 +146,10 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
         this.carritoService.agregar(this.vehiculo);
       }
       this.animandoCarrito = true;
-      this.setMensajeCarritoTemporal(`¡${cantidadAAgregar} vehículo${cantidadAAgregar > 1 ? 's' : ''} añadido${cantidadAAgregar > 1 ? 's' : ''}!`, 2000);
+      this.setMensajeCarritoTemporal(
+        `¡${cantidadAAgregar} vehículo${cantidadAAgregar > 1 ? 's' : ''} añadido${cantidadAAgregar > 1 ? 's' : ''}!`,
+        2000,
+      );
 
       if (this.animacionTimer) {
         clearTimeout(this.animacionTimer);

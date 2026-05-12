@@ -58,17 +58,27 @@ export class FinanciacionConfigService {
     };
   }
 
-  private normalizeRule(rule: Partial<ReglaFinanciacion> | undefined, fallback: ReglaFinanciacion): ReglaFinanciacion {
+  private normalizeRule(
+    rule: Partial<ReglaFinanciacion> | undefined,
+    fallback: ReglaFinanciacion,
+  ): ReglaFinanciacion {
     const descuentoSeguro = Number(rule?.descuentoSeguro);
     const costoMantenimiento = Number(rule?.costoMantenimiento);
     const cantidadMantenimientos = Number(rule?.cantidadMantenimientos);
 
     return {
-      descuentoSeguro: Number.isFinite(descuentoSeguro) && descuentoSeguro >= 0 ? descuentoSeguro : fallback.descuentoSeguro,
-      costoMantenimiento: Number.isFinite(costoMantenimiento) && costoMantenimiento >= 0 ? costoMantenimiento : fallback.costoMantenimiento,
-      cantidadMantenimientos: Number.isFinite(cantidadMantenimientos) && cantidadMantenimientos >= 0
-        ? Math.floor(cantidadMantenimientos)
-        : fallback.cantidadMantenimientos,
+      descuentoSeguro:
+        Number.isFinite(descuentoSeguro) && descuentoSeguro >= 0
+          ? descuentoSeguro
+          : fallback.descuentoSeguro,
+      costoMantenimiento:
+        Number.isFinite(costoMantenimiento) && costoMantenimiento >= 0
+          ? costoMantenimiento
+          : fallback.costoMantenimiento,
+      cantidadMantenimientos:
+        Number.isFinite(cantidadMantenimientos) && cantidadMantenimientos >= 0
+          ? Math.floor(cantidadMantenimientos)
+          : fallback.cantidadMantenimientos,
     };
   }
 

@@ -9,4 +9,6 @@ export interface Vehiculo {
   precio: number;
   tipo: 'auto' | 'camioneta' | 'moto' | 'camion';
   disponible: boolean;
+  cilindrada?: number;
+  potencia?: number;
 }

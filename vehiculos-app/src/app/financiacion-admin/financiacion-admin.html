@@ -3,7 +3,15 @@
 
   <div class="admin-card">
     @if (toastVisible) {
-      <p class="toast" [class.toast-success]="toastTipo === 'success'" [class.toast-warning]="toastTipo === 'warning'" [class.toast-info]="toastTipo === 'info'" aria-live="polite">{{ toastMensaje }}</p>
+      <p
+        class="toast"
+        [class.toast-success]="toastTipo === 'success'"
+        [class.toast-warning]="toastTipo === 'warning'"
+        [class.toast-info]="toastTipo === 'info'"
+        aria-live="polite"
+      >
+        {{ toastMensaje }}
+      </p>
     }
     <h2>Configuración de financiación</h2>
     <p class="subtitulo">Administra reglas base, por tipo y por modelo exacto.</p>
@@ -23,11 +31,23 @@
     </div>
     <div class="estado-guardado">
       <label class="autosave-toggle">
-        <input type="checkbox" [ngModel]="autosaveEnabled" (ngModelChange)="onAutosaveToggle($event)" />
+        <input
+          type="checkbox"
+          [ngModel]="autosaveEnabled"
+          (ngModelChange)="onAutosaveToggle($event)"
+        />
         Guardado automático (1.5s)
       </label>
       <div class="estado-guardado-texto">
-        <small class="autosave-estado" [class.estado-off]="autosaveEstado === 'off'" [class.estado-pending]="autosaveEstado === 'pending'" [class.estado-blocked]="autosaveEstado === 'blocked'" [class.estado-synced]="autosaveEstado === 'synced'" aria-live="polite">{{ autosaveEstadoLabel }}</small>
+        <small
+          class="autosave-estado"
+          [class.estado-off]="autosaveEstado === 'off'"
+          [class.estado-pending]="autosaveEstado === 'pending'"
+          [class.estado-blocked]="autosaveEstado === 'blocked'"
+          [class.estado-synced]="autosaveEstado === 'synced'"
+          aria-live="polite"
+          >{{ autosaveEstadoLabel }}</small
+        >
         @if (ultimoGuardadoLabel) {
           <small class="ultimo-guardado">Último guardado: {{ ultimoGuardadoLabel }}</small>
         }
@@ -40,9 +60,18 @@
     <div class="acciones-rapidas">
       <button type="button" class="btn-quick" (click)="expandirTodo()">Expandir todo</button>
       <button type="button" class="btn-quick" (click)="colapsarTodo()">Colapsar todo</button>
-      <button type="button" class="btn-quick" (click)="limpiarFiltros()" [disabled]="!hayFiltrosActivos">Limpiar filtros</button>
+      <button
+        type="button"
+        class="btn-quick"
+        (click)="limpiarFiltros()"
+        [disabled]="!hayFiltrosActivos"
+      >
+        Limpiar filtros
+      </button>
       @if (puedeDeshacer) {
-        <button type="button" class="btn-quick btn-quick-undo" (click)="deshacer()">&#8617; Deshacer (Ctrl+Z)</button>
+        <button type="button" class="btn-quick btn-quick-undo" (click)="deshacer()">
+          &#8617; Deshacer (Ctrl+Z)
+        </button>
       }
       @if (hayFiltrosActivos) {
         <small class="filtros-activos-hint">Filtros activos &mdash; Escape para limpiar</small>
@@ -67,7 +96,11 @@
     @if (config) {
       <section class="bloque" [class.seccion-con-cambios]="ocurridoCambioEnSeccion('base')">
         <div class="bloque-header-container">
-          <h3 class="bloque-header" (click)="toggleSeccion('base')" [attr.aria-expanded]="seccionesAbiertas['base']">
+          <h3
+            class="bloque-header"
+            (click)="toggleSeccion('base')"
+            [attr.aria-expanded]="seccionesAbiertas['base']"
+          >
             Regla base
             <span class="bloque-chevron">{{ seccionesAbiertas['base'] ? '▲' : '▼' }}</span>
           </h3>
@@ -76,15 +109,38 @@
           <div class="grid-regla">
             <label>
               Seguro
-              <input type="number" min="0" max="20000" step="1" [(ngModel)]="config.base.descuentoSeguro" [class]="claseCampoValor(config.base.descuentoSeguro, 'descuentoSeguro')" />
+              <input
+                type="number"
+                min="0"
+                max="20000"
+                step="1"
+                [(ngModel)]="config.base.descuentoSeguro"
+                [class]="claseCampoValor(config.base.descuentoSeguro, 'descuentoSeguro')"
+              />
             </label>
             <label>
               Mantenimiento
-              <input type="number" min="0" max="8000" step="1" [(ngModel)]="config.base.costoMantenimiento" [class]="claseCampoValor(config.base.costoMantenimiento, 'costoMantenimiento')" />
+              <input
+                type="number"
+                min="0"
+                max="8000"
+                step="1"
+                [(ngModel)]="config.base.costoMantenimiento"
+                [class]="claseCampoValor(config.base.costoMantenimiento, 'costoMantenimiento')"
+              />
             </label>
             <label>
               Cant. mantenimientos
-              <input type="number" min="0" max="24" step="1" [(ngModel)]="config.base.cantidadMantenimientos" [class]="claseCampoValor(config.base.cantidadMantenimientos, 'cantidadMantenimientos')" />
+              <input
+                type="number"
+                min="0"
+                max="24"
+                step="1"
+                [(ngModel)]="config.base.cantidadMantenimientos"
+                [class]="
+                  claseCampoValor(config.base.cantidadMantenimientos, 'cantidadMantenimientos')
+                "
+              />
             </label>
           </div>
         }
@@ -92,11 +148,22 @@
 
       <section class="bloque" [class.seccion-con-cambios]="ocurridoCambioEnSeccion('tipo')">
         <div class="bloque-header-container">
-          <h3 class="bloque-header" (click)="toggleSeccion('tipo')" [attr.aria-expanded]="seccionesAbiertas['tipo']">
+          <h3
+            class="bloque-header"
+            (click)="toggleSeccion('tipo')"
+            [attr.aria-expanded]="seccionesAbiertas['tipo']"
+          >
             Reglas por tipo
             <span class="bloque-chevron">{{ seccionesAbiertas['tipo'] ? '▲' : '▼' }}</span>
           </h3>
-          <button type="button" class="btn-aplicar-todos" (click)="aplicarABasePorTipo()" title="Copiar valores base a todas las reglas por tipo">♻ Aplicar a todos</button>
+          <button
+            type="button"
+            class="btn-aplicar-todos"
+            (click)="aplicarABasePorTipo()"
+            title="Copiar valores base a todas las reglas por tipo"
+          >
+            ♻ Aplicar a todos
+          </button>
         </div>
         @if (seccionesAbiertas['tipo']) {
           @if (tiposVehiculo.length > 0) {
@@ -108,158 +175,294 @@
                 aria-label="Filtrar reglas por tipo"
               />
               <small class="filtro-badge">
-                {{ tiposFiltrados.length }} de {{ tiposVehiculo.length }} tipo{{ tiposVehiculo.length !== 1 ? 's' : '' }}
-                @if (filtroTipo) { filtrados }
+                {{ tiposFiltrados.length }} de {{ tiposVehiculo.length }} tipo{{
+                  tiposVehiculo.length !== 1 ? 's' : ''
+                }}
+                @if (filtroTipo) {
+                  filtrados
+                }
               </small>
             </div>
           }
           @for (tipo of tiposFiltrados; track tipo) {
-              <div class="tipo-row">
-                <h4>{{ etiquetaTipo(tipo) }}</h4>
-                <div class="grid-regla">
-                  <label>
-                    Seguro
-                    <input type="number" min="0" max="20000" step="1" [(ngModel)]="config.porTipo[tipo].descuentoSeguro" [class]="claseCampoValor(config.porTipo[tipo].descuentoSeguro, 'descuentoSeguro')" />
-                  </label>
-                  <label>
-                    Mantenimiento
-                    <input type="number" min="0" max="8000" step="1" [(ngModel)]="config.porTipo[tipo].costoMantenimiento" [class]="claseCampoValor(config.porTipo[tipo].costoMantenimiento, 'costoMantenimiento')" />
-                  </label>
-                  <label>
-                    Cant. mantenimientos
-                    <input type="number" min="0" max="24" step="1" [(ngModel)]="config.porTipo[tipo].cantidadMantenimientos" [class]="claseCampoValor(config.porTipo[tipo].cantidadMantenimientos, 'cantidadMantenimientos')" />
-                  </label>
-                </div>
+            <div class="tipo-row">
+              <h4>{{ etiquetaTipo(tipo) }}</h4>
+              <div class="grid-regla">
+                <label>
+                  Seguro
+                  <input
+                    type="number"
+                    min="0"
+                    max="20000"
+                    step="1"
+                    [(ngModel)]="config.porTipo[tipo].descuentoSeguro"
+                    [class]="
+                      claseCampoValor(config.porTipo[tipo].descuentoSeguro, 'descuentoSeguro')
+                    "
+                  />
+                </label>
+                <label>
+                  Mantenimiento
+                  <input
+                    type="number"
+                    min="0"
+                    max="8000"
+                    step="1"
+                    [(ngModel)]="config.porTipo[tipo].costoMantenimiento"
+                    [class]="
+                      claseCampoValor(config.porTipo[tipo].costoMantenimiento, 'costoMantenimiento')
+                    "
+                  />
+                </label>
+                <label>
+                  Cant. mantenimientos
+                  <input
+                    type="number"
+                    min="0"
+                    max="24"
+                    step="1"
+                    [(ngModel)]="config.porTipo[tipo].cantidadMantenimientos"
+                    [class]="
+                      claseCampoValor(
+                        config.porTipo[tipo].cantidadMantenimientos,
+                        'cantidadMantenimientos'
+                      )
+                    "
+                  />
+                </label>
               </div>
+            </div>
           }
         }
       </section>
 
       <section class="bloque" [class.seccion-con-cambios]="ocurridoCambioEnSeccion('modelo')">
         <div class="bloque-header-container">
-          <h3 class="bloque-header" (click)="toggleSeccion('modelo')" [attr.aria-expanded]="seccionesAbiertas['modelo']">
+          <h3
+            class="bloque-header"
+            (click)="toggleSeccion('modelo')"
+            [attr.aria-expanded]="seccionesAbiertas['modelo']"
+          >
             Reglas por modelo exacto
             <span class="bloque-chevron">{{ seccionesAbiertas['modelo'] ? '▲' : '▼' }}</span>
           </h3>
           @if (reglasModelo.length > 0) {
-            <button type="button" class="btn-aplicar-todos" (click)="aplicarABasePorModelo()" title="Copiar valores base a todas las reglas por modelo">♻ Aplicar a todos</button>
+            <button
+              type="button"
+              class="btn-aplicar-todos"
+              (click)="aplicarABasePorModelo()"
+              title="Copiar valores base a todas las reglas por modelo"
+            >
+              ♻ Aplicar a todos
+            </button>
           }
         </div>
         @if (seccionesAbiertas['modelo']) {
-        <p class="help">Se usan con prioridad sobre las reglas por tipo.</p>
+          <p class="help">Se usan con prioridad sobre las reglas por tipo.</p>
 
-        <div class="modelo-add">
-          <label class="campo-modelo">
-            <span>
-              Marca
-              <small class="contador" [class.contador-error]="nuevaMarcaLength > 40">{{ nuevaMarcaLength }}/40</small>
-            </span>
-            <input
-              type="text"
-              placeholder="Marca (ej: Toyota)"
-              [ngModel]="nuevaMarca"
-              (ngModelChange)="onMarcaChange($event)"
-              [class.input-error]="nuevaMarcaInlineError"
-              [attr.aria-invalid]="!!nuevaMarcaInlineError"
-              maxlength="40"
-            />
-            @if (nuevaMarcaInlineError) {
-              <small class="error-inline">{{ nuevaMarcaInlineError }}</small>
-            }
-          </label>
-          <label class="campo-modelo">
-            <span>
-              Modelo
-              <small class="contador" [class.contador-error]="nuevoModeloLength > 40">{{ nuevoModeloLength }}/40</small>
-            </span>
-            <input
-              type="text"
-              placeholder="Modelo (ej: Corolla)"
-              [ngModel]="nuevoModelo"
-              (ngModelChange)="onModeloChange($event)"
-              [class.input-error]="nuevoModeloInlineError"
-              [attr.aria-invalid]="!!nuevoModeloInlineError"
-              maxlength="40"
-            />
-            @if (nuevoModeloInlineError) {
-              <small class="error-inline">{{ nuevoModeloInlineError }}</small>
-            }
-          </label>
-          <button type="button" (click)="agregarReglaModelo()" [disabled]="!puedeAgregarReglaModelo">Añadir regla</button>
-        </div>
-
-        @if (reglasModelo.length > 0) {
-          <div class="modelo-filtro">
-            <div class="modelo-filtro-controles">
+          <div class="modelo-add">
+            <label class="campo-modelo">
+              <span>
+                Marca
+                <small class="contador" [class.contador-error]="nuevaMarcaLength > 40"
+                  >{{ nuevaMarcaLength }}/40</small
+                >
+              </span>
               <input
-                type="search"
-                placeholder="Filtrar por marca o modelo..."
-                [(ngModel)]="filtroModelo"
-                aria-label="Filtrar reglas por modelo"
+                type="text"
+                placeholder="Marca (ej: Toyota)"
+                [ngModel]="nuevaMarca"
+                (ngModelChange)="onMarcaChange($event)"
+                [class.input-error]="nuevaMarcaInlineError"
+                [attr.aria-invalid]="!!nuevaMarcaInlineError"
+                maxlength="40"
               />
-              <button type="button" class="btn-orden" (click)="toggleOrdenReglas()" [title]="ordenReglas === 'asc' ? 'Orden Z→A' : 'Orden A→Z'">
-                {{ ordenReglas === 'asc' ? '↑ A-Z' : '↓ Z-A' }}
-              </button>
-            </div>
-            <small class="filtro-badge">
-              {{ reglasModeloFiltradas.length }} de {{ reglasModelo.length }} regla{{ reglasModelo.length !== 1 ? 's' : '' }}
-              @if (filtroModelo) { filtradas }
-            </small>
-            @if (filtroModelo && reglasModeloFiltradas.length === 0) {
-              <small class="filtro-sin-resultados">Sin resultados para &laquo;{{ filtroModelo }}&raquo;</small>
-            }
+              @if (nuevaMarcaInlineError) {
+                <small class="error-inline">{{ nuevaMarcaInlineError }}</small>
+              }
+            </label>
+            <label class="campo-modelo">
+              <span>
+                Modelo
+                <small class="contador" [class.contador-error]="nuevoModeloLength > 40"
+                  >{{ nuevoModeloLength }}/40</small
+                >
+              </span>
+              <input
+                type="text"
+                placeholder="Modelo (ej: Corolla)"
+                [ngModel]="nuevoModelo"
+                (ngModelChange)="onModeloChange($event)"
+                [class.input-error]="nuevoModeloInlineError"
+                [attr.aria-invalid]="!!nuevoModeloInlineError"
+                maxlength="40"
+              />
+              @if (nuevoModeloInlineError) {
+                <small class="error-inline">{{ nuevoModeloInlineError }}</small>
+              }
+            </label>
+            <button
+              type="button"
+              (click)="agregarReglaModelo()"
+              [disabled]="!puedeAgregarReglaModelo"
+            >
+              Añadir regla
+            </button>
           </div>
-        }
 
-        @if (reglasModelo.length === 0) {
-          <p>No hay reglas por modelo.</p>
-        } @else {
-          @for (fila of reglasModeloFiltradas; track fila.key) {
-            <div class="modelo-row" [class.cambio]="tieneReglaModeloCambios(fila.key)">
-              <div class="modelo-head">
-                <strong>{{ fila.marca }} {{ fila.modelo }}</strong>
-                <small>{{ fila.key }}</small>
-                <button type="button" class="btn-restablecer" (click)="restablecerABase(fila)" title="Copiar valores de la regla base a esta fila">↩ Base</button>
-                <button type="button" class="btn-duplicar" (click)="duplicarReglaModelo(fila)" title="Copiar marca y modelo al formulario">Duplicar</button>
-                <button type="button" class="btn-borrar" (click)="eliminarReglaModelo(fila.key)">Eliminar</button>
+          @if (reglasModelo.length > 0) {
+            <div class="modelo-filtro">
+              <div class="modelo-filtro-controles">
+                <input
+                  type="search"
+                  placeholder="Filtrar por marca o modelo..."
+                  [(ngModel)]="filtroModelo"
+                  aria-label="Filtrar reglas por modelo"
+                />
+                <button
+                  type="button"
+                  class="btn-orden"
+                  (click)="toggleOrdenReglas()"
+                  [title]="ordenReglas === 'asc' ? 'Orden Z→A' : 'Orden A→Z'"
+                >
+                  {{ ordenReglas === 'asc' ? '↑ A-Z' : '↓ Z-A' }}
+                </button>
               </div>
-
-              <div class="grid-regla">
-                <label>
-                  Seguro
-                  <input type="number" min="0" max="20000" step="1" [(ngModel)]="fila.regla.descuentoSeguro" [class]="claseCampoValor(fila.regla.descuentoSeguro, 'descuentoSeguro')" />
-                </label>
-                <label>
-                  Mantenimiento
-                  <input type="number" min="0" max="8000" step="1" [(ngModel)]="fila.regla.costoMantenimiento" [class]="claseCampoValor(fila.regla.costoMantenimiento, 'costoMantenimiento')" />
-                </label>
-                <label>
-                  Cant. mantenimientos
-                  <input type="number" min="0" max="24" step="1" [(ngModel)]="fila.regla.cantidadMantenimientos" [class]="claseCampoValor(fila.regla.cantidadMantenimientos, 'cantidadMantenimientos')" />
-                </label>
-              </div>
+              <small class="filtro-badge">
+                {{ reglasModeloFiltradas.length }} de {{ reglasModelo.length }} regla{{
+                  reglasModelo.length !== 1 ? 's' : ''
+                }}
+                @if (filtroModelo) {
+                  filtradas
+                }
+              </small>
+              @if (filtroModelo && reglasModeloFiltradas.length === 0) {
+                <small class="filtro-sin-resultados"
+                  >Sin resultados para &laquo;{{ filtroModelo }}&raquo;</small
+                >
+              }
             </div>
           }
+
+          @if (reglasModelo.length === 0) {
+            <p>No hay reglas por modelo.</p>
+          } @else {
+            @for (fila of reglasModeloFiltradas; track fila.key) {
+              <div class="modelo-row" [class.cambio]="tieneReglaModeloCambios(fila.key)">
+                <div class="modelo-head">
+                  <strong>{{ fila.marca }} {{ fila.modelo }}</strong>
+                  <small>{{ fila.key }}</small>
+                  <button
+                    type="button"
+                    class="btn-restablecer"
+                    (click)="restablecerABase(fila)"
+                    title="Copiar valores de la regla base a esta fila"
+                  >
+                    ↩ Base
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-duplicar"
+                    (click)="duplicarReglaModelo(fila)"
+                    title="Copiar marca y modelo al formulario"
+                  >
+                    Duplicar
+                  </button>
+                  <button type="button" class="btn-borrar" (click)="eliminarReglaModelo(fila.key)">
+                    Eliminar
+                  </button>
+                </div>
+
+                <div class="grid-regla">
+                  <label>
+                    Seguro
+                    <input
+                      type="number"
+                      min="0"
+                      max="20000"
+                      step="1"
+                      [(ngModel)]="fila.regla.descuentoSeguro"
+                      [class]="claseCampoValor(fila.regla.descuentoSeguro, 'descuentoSeguro')"
+                    />
+                  </label>
+                  <label>
+                    Mantenimiento
+                    <input
+                      type="number"
+                      min="0"
+                      max="8000"
+                      step="1"
+                      [(ngModel)]="fila.regla.costoMantenimiento"
+                      [class]="claseCampoValor(fila.regla.costoMantenimiento, 'costoMantenimiento')"
+                    />
+                  </label>
+                  <label>
+                    Cant. mantenimientos
+                    <input
+                      type="number"
+                      min="0"
+                      max="24"
+                      step="1"
+                      [(ngModel)]="fila.regla.cantidadMantenimientos"
+                      [class]="
+                        claseCampoValor(fila.regla.cantidadMantenimientos, 'cantidadMantenimientos')
+                      "
+                    />
+                  </label>
+                </div>
+              </div>
+            }
+          }
         }
-        } <!-- fin seccionesAbiertas['modelo'] -->
+        <!-- fin seccionesAbiertas['modelo'] -->
       </section>
 
       <div class="acciones-finales">
-        <button type="button" class="btn-guardar" (click)="guardarCambios()" [disabled]="!hayCambiosPendientes" title="Guardar (Ctrl+S)">Guardar cambios</button>
-        <button type="button" class="btn-descartar" (click)="descartarCambios()" [disabled]="!hayCambiosPendientes">Descartar cambios</button>
-        <button type="button" class="btn-reset" (click)="restaurarPorDefecto()">Restaurar por defecto</button>
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarCambios()"
+          [disabled]="!hayCambiosPendientes"
+          title="Guardar (Ctrl+S)"
+        >
+          Guardar cambios
+        </button>
+        <button
+          type="button"
+          class="btn-descartar"
+          (click)="descartarCambios()"
+          [disabled]="!hayCambiosPendientes"
+        >
+          Descartar cambios
+        </button>
+        <button type="button" class="btn-reset" (click)="restaurarPorDefecto()">
+          Restaurar por defecto
+        </button>
       </div>
 
       <section class="bloque backup-section">
         <h3>Backup de configuración</h3>
-        <p class="help">Exporta la configuración actual como JSON o importa una guardada anteriormente.</p>
+        <p class="help">
+          Exporta la configuración actual como JSON o importa una guardada anteriormente.
+        </p>
         <div class="backup-acciones">
-          <button type="button" class="btn-exportar" (click)="exportarConfiguracion()">&#8681; Exportar JSON</button>
-          <button type="button" class="btn-copiar" (click)="copiarConfiguracion()">&#128203; Copiar JSON</button>
-          <button type="button" class="btn-pegar" (click)="toggleImportacionTexto()">&#9998; Pegar JSON</button>
+          <button type="button" class="btn-exportar" (click)="exportarConfiguracion()">
+            &#8681; Exportar JSON
+          </button>
+          <button type="button" class="btn-copiar" (click)="copiarConfiguracion()">
+            &#128203; Copiar JSON
+          </button>
+          <button type="button" class="btn-pegar" (click)="toggleImportacionTexto()">
+            &#9998; Pegar JSON
+          </button>
           <label class="btn-importar">
             &#8679; Importar JSON
-            <input type="file" accept=".json,application/json" (change)="importarConfiguracion($event)" style="display:none" />
+            <input
+              type="file"
+              accept=".json,application/json"
+              (change)="importarConfiguracion($event)"
+              style="display: none"
+            />
           </label>
         </div>
         @if (mostrarImportacionTexto) {
@@ -275,13 +478,29 @@
             @if (previewImportacion) {
               <div class="preview-json">
                 <h4>Previsualización de cambios</h4>
-                <p>Base: <strong>{{ previewImportacion.baseCambiada ? 'Cambia' : 'Sin cambios' }}</strong></p>
-                <p>Tipos modificados: <strong>{{ previewImportacion.tiposCambiados }}</strong></p>
-                <p>Modelos nuevos: <strong>{{ previewImportacion.modelosNuevos }}</strong></p>
-                <p>Modelos actualizados: <strong>{{ previewImportacion.modelosActualizados }}</strong></p>
-                <p>Modelos eliminados: <strong>{{ previewImportacion.modelosEliminados }}</strong></p>
+                <p>
+                  Base:
+                  <strong>{{ previewImportacion.baseCambiada ? 'Cambia' : 'Sin cambios' }}</strong>
+                </p>
+                <p>
+                  Tipos modificados: <strong>{{ previewImportacion.tiposCambiados }}</strong>
+                </p>
+                <p>
+                  Modelos nuevos: <strong>{{ previewImportacion.modelosNuevos }}</strong>
+                </p>
+                <p>
+                  Modelos actualizados:
+                  <strong>{{ previewImportacion.modelosActualizados }}</strong>
+                </p>
+                <p>
+                  Modelos eliminados: <strong>{{ previewImportacion.modelosEliminados }}</strong>
+                </p>
 
-                @if (previewImportacion.modelosNuevos > 0 || previewImportacion.modelosActualizados > 0 || previewImportacion.modelosEliminados > 0) {
+                @if (
+                  previewImportacion.modelosNuevos > 0 ||
+                  previewImportacion.modelosActualizados > 0 ||
+                  previewImportacion.modelosEliminados > 0
+                ) {
                   <div class="preview-busqueda">
                     <input
                       type="search"
@@ -291,20 +510,32 @@
                       aria-label="Filtrar modelos del preview"
                     />
                     @if (filtroPreviewKeys) {
-                      <small class="preview-busqueda-hint">{{ clavesNuevosFiltradas.length + clavesActualizadosFiltradas.length + clavesEliminadosFiltradas.length }} resultado(s)</small>
+                      <small class="preview-busqueda-hint"
+                        >{{
+                          clavesNuevosFiltradas.length +
+                            clavesActualizadosFiltradas.length +
+                            clavesEliminadosFiltradas.length
+                        }}
+                        resultado(s)</small
+                      >
                     }
                   </div>
                 }
 
                 @if (previewImportacion.modelosNuevos > 0) {
                   <details class="preview-detalle">
-                    <summary>Ver modelos nuevos ({{ filtroPreviewKeys ? clavesNuevosFiltradas.length + '/' : '' }}{{ previewImportacion.modelosNuevos }})</summary>
+                    <summary>
+                      Ver modelos nuevos ({{
+                        filtroPreviewKeys ? clavesNuevosFiltradas.length + '/' : ''
+                      }}{{ previewImportacion.modelosNuevos }})
+                    </summary>
                     <ul>
                       @for (key of clavesNuevosFiltradas; track key) {
                         <li>{{ key }}</li>
-                      }
-                      @empty {
-                        <li class="preview-sin-resultados">Sin resultados para "{{ filtroPreviewKeys }}"</li>
+                      } @empty {
+                        <li class="preview-sin-resultados">
+                          Sin resultados para "{{ filtroPreviewKeys }}"
+                        </li>
                       }
                     </ul>
                   </details>
@@ -312,13 +543,18 @@
 
                 @if (previewImportacion.modelosActualizados > 0) {
                   <details class="preview-detalle">
-                    <summary>Ver modelos actualizados ({{ filtroPreviewKeys ? clavesActualizadosFiltradas.length + '/' : '' }}{{ previewImportacion.modelosActualizados }})</summary>
+                    <summary>
+                      Ver modelos actualizados ({{
+                        filtroPreviewKeys ? clavesActualizadosFiltradas.length + '/' : ''
+                      }}{{ previewImportacion.modelosActualizados }})
+                    </summary>
                     <ul>
                       @for (key of clavesActualizadosFiltradas; track key) {
                         <li>{{ key }}</li>
-                      }
-                      @empty {
-                        <li class="preview-sin-resultados">Sin resultados para "{{ filtroPreviewKeys }}"</li>
+                      } @empty {
+                        <li class="preview-sin-resultados">
+                          Sin resultados para "{{ filtroPreviewKeys }}"
+                        </li>
                       }
                     </ul>
                   </details>
@@ -326,13 +562,18 @@
 
                 @if (previewImportacion.modelosEliminados > 0) {
                   <details class="preview-detalle">
-                    <summary>Ver modelos eliminados ({{ filtroPreviewKeys ? clavesEliminadosFiltradas.length + '/' : '' }}{{ previewImportacion.modelosEliminados }})</summary>
+                    <summary>
+                      Ver modelos eliminados ({{
+                        filtroPreviewKeys ? clavesEliminadosFiltradas.length + '/' : ''
+                      }}{{ previewImportacion.modelosEliminados }})
+                    </summary>
                     <ul>
                       @for (key of clavesEliminadosFiltradas; track key) {
                         <li>{{ key }}</li>
-                      }
-                      @empty {
-                        <li class="preview-sin-resultados">Sin resultados para "{{ filtroPreviewKeys }}"</li>
+                      } @empty {
+                        <li class="preview-sin-resultados">
+                          Sin resultados para "{{ filtroPreviewKeys }}"
+                        </li>
                       }
                     </ul>
                   </details>
@@ -341,9 +582,20 @@
             }
 
             <div class="panel-pegar-acciones">
-              <button type="button" class="btn-previsualizar-json" (click)="importarDesdeTexto()">Previsualizar</button>
-              <button type="button" class="btn-aplicar-json" (click)="aplicarImportacionPrevisualizada()" [disabled]="!previewImportacion">Aplicar JSON</button>
-              <button type="button" class="btn-limpiar-json" (click)="limpiarImportacionTexto()">Limpiar</button>
+              <button type="button" class="btn-previsualizar-json" (click)="importarDesdeTexto()">
+                Previsualizar
+              </button>
+              <button
+                type="button"
+                class="btn-aplicar-json"
+                (click)="aplicarImportacionPrevisualizada()"
+                [disabled]="!previewImportacion"
+              >
+                Aplicar JSON
+              </button>
+              <button type="button" class="btn-limpiar-json" (click)="limpiarImportacionTexto()">
+                Limpiar
+              </button>
             </div>
           </div>
         }

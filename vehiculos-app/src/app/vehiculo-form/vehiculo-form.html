@@ -14,41 +14,104 @@
     }
 
     <!-- ngSubmit llama a onGuardar() que valida y envía al servicio -->
-    <form (ngSubmit)="onGuardar()">
+    <form (ngSubmit)="onGuardar()" novalidate>
       <div class="form-grid">
         <!-- Marca -->
         <div class="form-grupo">
           <label for="marca">Marca *</label>
-          <input id="marca" type="text" [(ngModel)]="vehiculo.marca" name="marca" placeholder="Ej: Toyota" (ngModelChange)="limpiarError('marca')" [class.campo-error]="errores['marca']" />
-          @if (errores['marca']) { <span class="error-campo">{{ errores['marca'] }}</span> }
+          <input
+            id="marca"
+            type="text"
+            [(ngModel)]="vehiculo.marca"
+            name="marca"
+            placeholder="Ej: Toyota"
+            maxlength="40"
+            required
+            (ngModelChange)="limpiarError('marca')"
+            [class.campo-error]="errores['marca']"
+          />
+          @if (errores['marca']) {
+            <span class="error-campo">{{ errores['marca'] }}</span>
+          }
         </div>
 
         <!-- Modelo -->
         <div class="form-grupo">
           <label for="modelo">Modelo *</label>
-          <input id="modelo" type="text" [(ngModel)]="vehiculo.modelo" name="modelo" placeholder="Ej: Corolla" (ngModelChange)="limpiarError('modelo')" [class.campo-error]="errores['modelo']" />
-          @if (errores['modelo']) { <span class="error-campo">{{ errores['modelo'] }}</span> }
+          <input
+            id="modelo"
+            type="text"
+            [(ngModel)]="vehiculo.modelo"
+            name="modelo"
+            placeholder="Ej: Corolla"
+            maxlength="50"
+            required
+            (ngModelChange)="limpiarError('modelo')"
+            [class.campo-error]="errores['modelo']"
+          />
+          @if (errores['modelo']) {
+            <span class="error-campo">{{ errores['modelo'] }}</span>
+          }
         </div>
 
         <!-- Año -->
         <div class="form-grupo">
           <label for="anio">Año *</label>
-          <input id="anio" type="number" [(ngModel)]="vehiculo.anio" name="anio" placeholder="Ej: 2024" (ngModelChange)="limpiarError('anio')" [class.campo-error]="errores['anio']" />
-          @if (errores['anio']) { <span class="error-campo">{{ errores['anio'] }}</span> }
+          <input
+            id="anio"
+            type="number"
+            [(ngModel)]="vehiculo.anio"
+            name="anio"
+            [min]="anioMinimo"
+            [max]="anioMaximo"
+            step="1"
+            required
+            placeholder="Ej: 2024"
+            (ngModelChange)="limpiarError('anio')"
+            [class.campo-error]="errores['anio']"
+          />
+          @if (errores['anio']) {
+            <span class="error-campo">{{ errores['anio'] }}</span>
+          }
         </div>
 
         <!-- Color -->
         <div class="form-grupo">
           <label for="color">Color *</label>
-          <input id="color" type="text" [(ngModel)]="vehiculo.color" name="color" placeholder="Ej: Blanco" (ngModelChange)="limpiarError('color')" [class.campo-error]="errores['color']" />
-          @if (errores['color']) { <span class="error-campo">{{ errores['color'] }}</span> }
+          <input
+            id="color"
+            type="text"
+            [(ngModel)]="vehiculo.color"
+            name="color"
+            maxlength="30"
+            required
+            placeholder="Ej: Blanco"
+            (ngModelChange)="limpiarError('color')"
+            [class.campo-error]="errores['color']"
+          />
+          @if (errores['color']) {
+            <span class="error-campo">{{ errores['color'] }}</span>
+          }
         </div>
 
         <!-- Precio -->
         <div class="form-grupo">
           <label for="precio">Precio (USD) *</label>
-          <input id="precio" type="number" [(ngModel)]="vehiculo.precio" name="precio" placeholder="Ej: 25000" (ngModelChange)="limpiarError('precio')" [class.campo-error]="errores['precio']" />
-          @if (errores['precio']) { <span class="error-campo">{{ errores['precio'] }}</span> }
+          <input
+            id="precio"
+            type="number"
+            [(ngModel)]="vehiculo.precio"
+            name="precio"
+            min="1"
+            step="100"
+            required
+            placeholder="Ej: 25000"
+            (ngModelChange)="limpiarError('precio')"
+            [class.campo-error]="errores['precio']"
+          />
+          @if (errores['precio']) {
+            <span class="error-campo">{{ errores['precio'] }}</span>
+          }
         </div>
 
         <!-- Tipo -->
@@ -65,8 +128,19 @@
         <!-- Imagen (URL o ruta local) -->
         <div class="form-grupo form-grupo-ancho">
           <label for="imagen">URL de imagen *</label>
-          <input id="imagen" type="text" [(ngModel)]="vehiculo.imagen" name="imagen" placeholder="Ej: /vehiculos/mi-auto.jpg" (ngModelChange)="limpiarError('imagen')" [class.campo-error]="errores['imagen']" />
-          @if (errores['imagen']) { <span class="error-campo">{{ errores['imagen'] }}</span> }
+          <input
+            id="imagen"
+            type="url"
+            [(ngModel)]="vehiculo.imagen"
+            name="imagen"
+            required
+            placeholder="Ej: /vehiculos/mi-auto.jpg"
+            (ngModelChange)="limpiarError('imagen')"
+            [class.campo-error]="errores['imagen']"
+          />
+          @if (errores['imagen']) {
+            <span class="error-campo">{{ errores['imagen'] }}</span>
+          }
         </div>
 
         <!-- Disponible -->
@@ -94,13 +168,20 @@
 
       <!-- Indicador de completitud del formulario -->
       <div class="form-completitud">
-        <div class="completitud-label">Progreso: {{ camposCompletos }}/{{ totalCamposRequeridos }} campos</div>
+        <div class="completitud-label">
+          Progreso: {{ camposCompletos }}/{{ totalCamposRequeridos }} campos
+        </div>
         <div class="completitud-barra">
-          <div class="completitud-relleno" [style.width.%]="(camposCompletos / totalCamposRequeridos) * 100"></div>
+          <div
+            class="completitud-relleno"
+            [style.width.%]="(camposCompletos / totalCamposRequeridos) * 100"
+          ></div>
         </div>
       </div>
 
-      <button type="submit" class="btn-guardar" [disabled]="!formularioCompleto">{{ titulo }}</button>
+      <button type="submit" class="btn-guardar" [disabled]="!formularioCompleto">
+        {{ titulo }}
+      </button>
     </form>
   </div>
 </div>

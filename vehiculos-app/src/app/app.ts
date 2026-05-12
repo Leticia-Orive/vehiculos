@@ -10,7 +10,7 @@ import { CarritoService } from './carrito.service';
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
   autenticado = false;
@@ -24,23 +24,23 @@ export class App implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private carritoService: CarritoService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.subs.add(
-      this.authService.autenticado$.subscribe(auth => {
+      this.authService.autenticado$.subscribe((auth) => {
         this.autenticado = auth;
         this.esAdmin = this.authService.esAdmin();
         this.nombreUsuario = this.authService.obtenerNombreUsuario();
-      })
+      }),
     );
     this.subs.add(
-      this.carritoService.items$.pipe(
-        map(items => items.reduce((acc, i) => acc + i.cantidad, 0))
-      ).subscribe(count => {
-        this.cantidadCarrito = count;
-      })
+      this.carritoService.items$
+        .pipe(map((items) => items.reduce((acc, i) => acc + i.cantidad, 0)))
+        .subscribe((count) => {
+          this.cantidadCarrito = count;
+        }),
     );
   }
 

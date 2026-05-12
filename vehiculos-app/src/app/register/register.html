@@ -23,6 +23,8 @@
           [(ngModel)]="nombre"
           name="nombre"
           placeholder="Ej: María García"
+          autocomplete="name"
+          required
           [disabled]="cargando"
           autofocus
         />
@@ -37,6 +39,9 @@
           [(ngModel)]="username"
           name="username"
           placeholder="Mínimo 3 caracteres"
+          autocomplete="username"
+          minlength="3"
+          required
           [disabled]="cargando"
         />
       </div>
@@ -50,6 +55,8 @@
           [(ngModel)]="email"
           name="email"
           placeholder="tu@email.com"
+          autocomplete="email"
+          required
           [disabled]="cargando"
           [class.campo-valido]="email && emailValido"
           [class.campo-invalido]="email && !emailValido"
@@ -71,6 +78,9 @@
             [(ngModel)]="password"
             name="password"
             placeholder="Mínimo 6 caracteres"
+            autocomplete="new-password"
+            minlength="6"
+            required
             [disabled]="cargando"
           />
           <button type="button" class="btn-toggle-password" (click)="togglePassword()">
@@ -80,7 +90,10 @@
         @if (password) {
           <div class="password-fuerza">
             <div class="fuerza-barra">
-              <div class="fuerza-relleno fuerza-{{ fuerzaClase }}" [style.width.%]="fuerzaPassword * 25"></div>
+              <div
+                class="fuerza-relleno fuerza-{{ fuerzaClase }}"
+                [style.width.%]="fuerzaPassword * 25"
+              ></div>
             </div>
             <span class="fuerza-label fuerza-{{ fuerzaClase }}">{{ fuerzaLabel }}</span>
           </div>
@@ -97,6 +110,8 @@
             [(ngModel)]="confirmarPassword"
             name="confirmarPassword"
             placeholder="Repite tu contraseña"
+            autocomplete="new-password"
+            required
             [disabled]="cargando"
             [class.campo-valido]="confirmarPassword && contraseniasCoinciden"
             [class.campo-invalido]="confirmarPassword && !contraseniasCoinciden"
@@ -123,8 +138,6 @@
     </form>
 
     <!-- Link al login -->
-    <div class="link-alternativo">
-      ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
-    </div>
+    <div class="link-alternativo">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></div>
   </div>
 </div>

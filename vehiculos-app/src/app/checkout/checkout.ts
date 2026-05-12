@@ -43,7 +43,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private bannerTimer: ReturnType<typeof setTimeout> | null = null;
   private autosaveUiTimer: ReturnType<typeof setTimeout> | null = null;
   numeroPedido: string = '';
-  confettiItems: { id: number; left: number; delay: number; color: string; duration: number }[] = [];
+  confettiItems: { id: number; left: number; delay: number; color: string; duration: number }[] =
+    [];
 
   // Datos de forma de pago
   formaPago: 'contado' | 'financiado' = 'contado';
@@ -70,7 +71,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private financiacionConfigService: FinanciacionConfigService,
-    private titleService: Title
+    private titleService: Title,
   ) {}
 
   ngOnInit(): void {
@@ -178,8 +179,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   get totalDescuentosFinanciado(): number {
     return this.items.reduce((acumulado, item) => {
       const regla = this.obtenerReglaFinanciacion(item.vehiculo);
-      const descuentoUnitario = regla.descuentoSeguro + (regla.costoMantenimiento * regla.cantidadMantenimientos);
-      return acumulado + (descuentoUnitario * item.cantidad);
+      const descuentoUnitario =
+        regla.descuentoSeguro + regla.costoMantenimiento * regla.cantidadMantenimientos;
+      return acumulado + descuentoUnitario * item.cantidad;
     }, 0);
   }
 
@@ -189,7 +191,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     for (const item of this.items) {
       const regla = this.obtenerReglaFinanciacion(item.vehiculo);
-      const descuentoUnitario = regla.descuentoSeguro + (regla.costoMantenimiento * regla.cantidadMantenimientos);
+      const descuentoUnitario =
+        regla.descuentoSeguro + regla.costoMantenimiento * regla.cantidadMantenimientos;
       const claveModelo = this.claveModelo(item.vehiculo);
 
       if (!acumulado[claveModelo]) {
@@ -352,7 +355,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     if (this.saldoFinanciar <= 0) {
-      this.mensajeErrorFinanciacion = 'Con la entrada y descuentos no queda saldo para financiar. Ajusta los importes.';
+      this.mensajeErrorFinanciacion =
+        'Con la entrada y descuentos no queda saldo para financiar. Ajusta los importes.';
       return false;
     }
 
@@ -360,6 +364,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private validarEntrega(): boolean {
+    this.email = this.email.trim().toLowerCase();
+    this.direccion = this.direccion.trim();
+    this.telefono = this.telefono.trim();
+
     if (!this.email || !this.emailValido) {
       this.mensajeErrorEntrega = 'Revisa el email para continuar.';
       this.emailInput?.nativeElement.focus();
@@ -512,7 +520,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const parsed = JSON.parse(raw) as { formaPago?: string; pagoMensual?: number; entradaContado?: number };
+      const parsed = JSON.parse(raw) as {
+        formaPago?: string;
+        pagoMensual?: number;
+        entradaContado?: number;
+      };
       if (parsed.formaPago === 'contado' || parsed.formaPago === 'financiado') {
         this.formaPago = parsed.formaPago;
       }
@@ -521,7 +533,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       const entradaContado = Number(parsed.entradaContado);
 
       this.pagoMensual = Number.isFinite(pagoMensual) && pagoMensual > 0 ? pagoMensual : 0;
-      this.entradaContado = Number.isFinite(entradaContado) && entradaContado > 0 ? entradaContado : 0;
+      this.entradaContado =
+        Number.isFinite(entradaContado) && entradaContado > 0 ? entradaContado : 0;
     } catch {
       localStorage.removeItem(this.checkoutFinanciacionKey);
     }

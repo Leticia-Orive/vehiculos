@@ -51,7 +51,9 @@
   line-height: 1;
   color: #888;
   transition: color 0.2s;
-  &:hover { color: #333; }
+  &:hover {
+    color: #333;
+  }
 }
 
 // ── Indicador de fortaleza ───────────────────────────────────────────────────
@@ -73,12 +75,22 @@
 .fuerza-relleno {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s ease, background 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background 0.3s ease;
 
-  &.fuerza-debil   { background: #ef5350; }
-  &.fuerza-regular { background: #ffa726; }
-  &.fuerza-buena   { background: #66bb6a; }
-  &.fuerza-fuerte  { background: #2e7d32; }
+  &.fuerza-debil {
+    background: #ef5350;
+  }
+  &.fuerza-regular {
+    background: #ffa726;
+  }
+  &.fuerza-buena {
+    background: #66bb6a;
+  }
+  &.fuerza-fuerte {
+    background: #2e7d32;
+  }
 }
 
 .fuerza-label {
@@ -86,10 +98,18 @@
   font-weight: 700;
   min-width: 52px;
 
-  &.fuerza-debil   { color: #ef5350; }
-  &.fuerza-regular { color: #ffa726; }
-  &.fuerza-buena   { color: #66bb6a; }
-  &.fuerza-fuerte  { color: #2e7d32; }
+  &.fuerza-debil {
+    color: #ef5350;
+  }
+  &.fuerza-regular {
+    color: #ffa726;
+  }
+  &.fuerza-buena {
+    color: #66bb6a;
+  }
+  &.fuerza-fuerte {
+    color: #2e7d32;
+  }
 }
 
 // ── Indicadores de validación ───────────────────────────────────────────────

@@ -6,7 +6,14 @@
     <div class="toast-deshacer" role="status" aria-live="polite">
       <span>{{ toastMensaje }}</span>
       <button type="button" class="btn-deshacer" (click)="deshacerEliminar()">Deshacer</button>
-      <button type="button" class="btn-cerrar-toast" (click)="cerrarToastDeshacer()" aria-label="Cerrar notificación">&#10005;</button>
+      <button
+        type="button"
+        class="btn-cerrar-toast"
+        (click)="cerrarToastDeshacer()"
+        aria-label="Cerrar notificación"
+      >
+        &#10005;
+      </button>
     </div>
   }
 
@@ -40,24 +47,37 @@
     <div class="carrito-items">
       @for (item of items; track item.vehiculo.id) {
         <div class="carrito-item" [class.restaurado]="esRestaurado(item.vehiculo.id)">
-          <img [src]="item.vehiculo.imagen" [alt]="item.vehiculo.marca + ' ' + item.vehiculo.modelo" />
+          <img
+            [src]="item.vehiculo.imagen"
+            [alt]="item.vehiculo.marca + ' ' + item.vehiculo.modelo"
+          />
           <div class="item-info">
             <h3>{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</h3>
-            <p class="item-precio">{{ item.vehiculo.precio | currency:'USD' }} c/u</p>
+            <p class="item-precio">{{ item.vehiculo.precio | currency: 'USD' }} c/u</p>
             <span class="badge badge-{{ item.vehiculo.tipo }}">{{ item.vehiculo.tipo }}</span>
           </div>
           <!-- Stepper +/- de cantidad -->
           <div class="item-stepper">
-            <button class="stepper-btn" (click)="decrementar(item.vehiculo.id, item.cantidad)" [disabled]="item.cantidad <= 1">−</button>
+            <button
+              class="stepper-btn"
+              (click)="decrementar(item.vehiculo.id, item.cantidad)"
+              [disabled]="item.cantidad <= 1"
+            >
+              −
+            </button>
             <span class="stepper-valor">{{ item.cantidad }}</span>
-            <button class="stepper-btn" (click)="incrementar(item.vehiculo.id, item.cantidad)">+</button>
+            <button class="stepper-btn" (click)="incrementar(item.vehiculo.id, item.cantidad)">
+              +
+            </button>
           </div>
           <!-- Subtotal = precio × cantidad -->
           <div class="item-subtotal">
-            <span>{{ item.vehiculo.precio * item.cantidad | currency:'USD' }}</span>
+            <span>{{ item.vehiculo.precio * item.cantidad | currency: 'USD' }}</span>
           </div>
           <!-- Elimina solo este ítem del carrito -->
-          <button class="btn-eliminar" (click)="eliminar(item.vehiculo.id)" title="Eliminar">✕</button>
+          <button class="btn-eliminar" (click)="eliminar(item.vehiculo.id)" title="Eliminar">
+            ✕
+          </button>
         </div>
       }
     </div>
@@ -66,10 +86,16 @@
     <div class="ahorro-estimado" aria-live="polite">
       <div class="ahorro-header">
         <h3>Ahorro estimado si financias</h3>
-        <strong>-{{ ahorroTotalEstimado | currency:'USD' }}</strong>
+        <strong>-{{ ahorroTotalEstimado | currency: 'USD' }}</strong>
       </div>
-      <p class="ahorro-nota">Estimación basada en seguro + mantenimientos por reglas de financiación actuales.</p>
-      <button class="btn-toggle-ahorro" (click)="toggleDesgloseAhorro()" [attr.aria-expanded]="mostrarDesgloseAhorro">
+      <p class="ahorro-nota">
+        Estimación basada en seguro + mantenimientos por reglas de financiación actuales.
+      </p>
+      <button
+        class="btn-toggle-ahorro"
+        (click)="toggleDesgloseAhorro()"
+        [attr.aria-expanded]="mostrarDesgloseAhorro"
+      >
         {{ mostrarDesgloseAhorro ? 'Ocultar desglose' : 'Ver desglose' }}
       </button>
       @if (mostrarDesgloseAhorro) {
@@ -77,21 +103,21 @@
           @for (fila of desgloseAhorroEstimado; track fila.clave) {
             <p>
               {{ fila.marca }} {{ fila.modelo }} (x{{ fila.cantidad }}):
-              <strong>-{{ fila.ahorroTotal | currency:'USD' }}</strong>
+              <strong>-{{ fila.ahorroTotal | currency: 'USD' }}</strong>
             </p>
           }
         </div>
       }
       <div class="ahorro-total-final">
         <span>Total potencial tras ahorro:</span>
-        <strong>{{ totalConAhorroEstimado | currency:'USD' }}</strong>
+        <strong>{{ totalConAhorroEstimado | currency: 'USD' }}</strong>
       </div>
     </div>
 
     <div class="carrito-resumen">
       <div class="total">
         <span>Total:</span>
-        <strong>{{ total | currency:'USD' }}</strong>
+        <strong>{{ total | currency: 'USD' }}</strong>
       </div>
       <div class="resumen-acciones">
         <button class="btn-financiar" (click)="irAFinanciacion()">Ir a financiación</button>
@@ -103,7 +129,7 @@
     <div class="mobile-carrito-bar" aria-label="Resumen móvil del carrito">
       <div class="mobile-total">
         <span>Total</span>
-        <strong>{{ total | currency:'USD' }}</strong>
+        <strong>{{ total | currency: 'USD' }}</strong>
       </div>
       <div class="mobile-acciones">
         <button class="btn-mobile-financiar" (click)="irAFinanciacion()">Financiar</button>

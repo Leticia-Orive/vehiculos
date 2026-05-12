@@ -7,10 +7,14 @@
   border-radius: 4px;
   text-decoration: none;
   font-size: 0.9rem;
-  &:hover { background: #0d1b6e; }
+  &:hover {
+    background: #0d1b6e;
+  }
 }
 
-h1 { margin-bottom: 1.5rem; }
+h1 {
+  margin-bottom: 1.5rem;
+}
 
 .toast-deshacer {
   margin: 0 0 1rem;
@@ -22,7 +26,7 @@ h1 { margin-bottom: 1.5rem; }
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
   span {
     flex: 1;
@@ -63,11 +67,13 @@ h1 { margin-bottom: 1.5rem; }
   padding: 3rem;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   color: #999;
   font-size: 1.1rem;
 
-  p { margin-bottom: 1.5rem; }
+  p {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .btn-guardar {
@@ -78,7 +84,9 @@ h1 { margin-bottom: 1.5rem; }
   border-radius: 6px;
   text-decoration: none;
   font-weight: 600;
-  &:hover { background: #0d1b6e; }
+  &:hover {
+    background: #0d1b6e;
+  }
 }
 
 .carrito-items {
@@ -95,12 +103,14 @@ h1 { margin-bottom: 1.5rem; }
   background: white;
   border-radius: 10px;
   padding: 1rem 1.25rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
   &.restaurado {
     animation: restauradoFlash 1.35s ease;
     border: 1px solid #9adba3;
-    box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.18), 0 4px 14px rgba(67, 160, 71, 0.18);
+    box-shadow:
+      0 0 0 4px rgba(102, 187, 106, 0.18),
+      0 4px 14px rgba(67, 160, 71, 0.18);
   }
 
   img {
@@ -270,7 +280,7 @@ h1 { margin-bottom: 1.5rem; }
   background: white;
   border-radius: 10px;
   padding: 1.5rem 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;

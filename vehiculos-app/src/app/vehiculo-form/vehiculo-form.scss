@@ -2,7 +2,7 @@
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   margin-top: 1.5rem;
 
   h2 {
@@ -63,7 +63,8 @@
     font-size: 0.9rem;
   }
 
-  input, select {
+  input,
+  select {
     padding: 0.65rem 0.9rem;
     border: 2px solid #e0e0e0;
     border-radius: 6px;
@@ -107,7 +108,7 @@
     margin-bottom: 0;
   }
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: 18px;
     height: 18px;
     padding: 0;
@@ -195,5 +196,7 @@
   text-decoration: none;
   font-size: 0.9rem;
 
-  &:hover { background: #0d1b6e; }
+  &:hover {
+    background: #0d1b6e;
+  }
 }

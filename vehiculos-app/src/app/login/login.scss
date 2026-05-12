@@ -101,7 +101,9 @@ form {
   color: #888;
   transition: color 0.2s;
 
-  &:hover { color: #333; }
+  &:hover {
+    color: #333;
+  }
 }
 
 .btn-login {
@@ -177,7 +179,7 @@ form {
     color: #666;
     margin-bottom: 0;
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       width: 18px;
       height: 18px;
       cursor: pointer;

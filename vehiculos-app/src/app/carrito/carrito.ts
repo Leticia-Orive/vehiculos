@@ -41,17 +41,19 @@ export class CarritoComponent implements OnInit, OnDestroy {
     private carritoService: CarritoService,
     private router: Router,
     private titleService: Title,
-    private financiacionConfigService: FinanciacionConfigService
+    private financiacionConfigService: FinanciacionConfigService,
   ) {}
 
   ngOnInit(): void {
     this.restaurarEstadoAhorro();
 
     // Suscripción al observable para reflejar cambios en tiempo real
-    this.itemsSub = this.carritoService.items$.subscribe(items => {
+    this.itemsSub = this.carritoService.items$.subscribe((items) => {
       this.items = items;
       const total = items.reduce((acc, i) => acc + i.cantidad, 0);
-      this.titleService.setTitle(total > 0 ? `Carrito (${total}) | Vehículos` : 'Carrito | Vehículos');
+      this.titleService.setTitle(
+        total > 0 ? `Carrito (${total}) | Vehículos` : 'Carrito | Vehículos',
+      );
     });
   }
 
@@ -67,7 +69,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   // Elimina un ítem del carrito
   eliminar(vehiculoId: number): void {
-    const eliminado = this.items.find(i => i.vehiculo.id === vehiculoId);
+    const eliminado = this.items.find((i) => i.vehiculo.id === vehiculoId);
     if (!eliminado) {
       return;
     }
@@ -137,7 +139,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   // Vacía el carrito después de confirmar
   confirmarVaciar(): void {
     if (this.items.length > 0) {
-      this.ultimoVaciado = this.items.map(item => this.clonarItem(item));
+      this.ultimoVaciado = this.items.map((item) => this.clonarItem(item));
       this.ultimoEliminado = null;
       this.toastMensaje = 'Se vació el carrito.';
     }
@@ -171,10 +173,14 @@ export class CarritoComponent implements OnInit, OnDestroy {
     const acumulado: Record<string, AhorroEstimadoFila> = {};
 
     for (const item of this.items) {
-      const clave = this.financiacionConfigService.buildModelKey(item.vehiculo.marca, item.vehiculo.modelo);
+      const clave = this.financiacionConfigService.buildModelKey(
+        item.vehiculo.marca,
+        item.vehiculo.modelo,
+      );
       const reglaModelo = config.porModelo[clave];
       const regla = reglaModelo ?? config.porTipo[item.vehiculo.tipo] ?? config.base;
-      const ahorroUnitario = regla.descuentoSeguro + (regla.costoMantenimiento * regla.cantidadMantenimientos);
+      const ahorroUnitario =
+        regla.descuentoSeguro + regla.costoMantenimiento * regla.cantidadMantenimientos;
 
       if (!acumulado[clave]) {
         acumulado[clave] = {

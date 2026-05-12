@@ -1,4 +1,8 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -12,7 +16,11 @@ body {
   padding: 0 1rem;
 }
 
-h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
+h1,
+h2 {
+  margin-bottom: 1.5rem;
+  color: #1a237e;
+}
 
 /* Filtros */
 .filtros {
@@ -31,7 +39,8 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
     font-weight: 600;
     transition: all 0.2s;
 
-    &:hover, &.activo {
+    &:hover,
+    &.activo {
       background: #1a237e;
       color: white;
     }
@@ -45,7 +54,7 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   th {
     background: #1a237e;
@@ -60,7 +69,9 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
     white-space: nowrap;
   }
 
-  tr:hover td { background: #f0f4ff; }
+  tr:hover td {
+    background: #f0f4ff;
+  }
 }
 
 .vehiculo-miniatura {
@@ -80,14 +91,32 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   font-weight: 600;
   text-transform: capitalize;
 
-  &-auto      { background: #c8e6c9; color: #1b5e20; }
-  &-camioneta { background: #bbdefb; color: #0d47a1; }
-  &-moto      { background: #ffe0b2; color: #e65100; }
-  &-camion    { background: #e1bee7; color: #4a148c; }
+  &-auto {
+    background: #c8e6c9;
+    color: #1b5e20;
+  }
+  &-camioneta {
+    background: #bbdefb;
+    color: #0d47a1;
+  }
+  &-moto {
+    background: #ffe0b2;
+    color: #e65100;
+  }
+  &-camion {
+    background: #e1bee7;
+    color: #4a148c;
+  }
 }
 
-.disponible    { color: #2e7d32; font-weight: 700; }
-.no-disponible { color: #c62828; font-weight: 700; }
+.disponible {
+  color: #2e7d32;
+  font-weight: 700;
+}
+.no-disponible {
+  color: #c62828;
+  font-weight: 700;
+}
 
 /* Botones acciones */
 .btn-ver {
@@ -99,7 +128,9 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   text-decoration: none;
   font-size: 0.85rem;
   margin-right: 0.5rem;
-  &:hover { background: #0d47a1; }
+  &:hover {
+    background: #0d47a1;
+  }
 }
 
 .btn-eliminar {
@@ -110,7 +141,9 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.85rem;
-  &:hover { background: #b71c1c; }
+  &:hover {
+    background: #b71c1c;
+  }
 }
 
 /* Pantalla de login / register */
@@ -271,7 +304,7 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   background: white;
   border-radius: 8px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   max-width: 500px;
 
   .vehiculo-imagen {
@@ -302,5 +335,7 @@ h1, h2 { margin-bottom: 1.5rem; color: #1a237e; }
   color: white;
   border-radius: 4px;
   text-decoration: none;
-  &:hover { background: #0d1b6e; }
+  &:hover {
+    background: #0d1b6e;
+  }
 }
