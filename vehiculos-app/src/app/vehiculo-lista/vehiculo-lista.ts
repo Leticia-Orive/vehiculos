@@ -1016,6 +1016,11 @@ export class VehiculoLista implements OnInit, OnDestroy {
     return this.ordenAscendente ? '↑' : '↓';
   }
 
+  ariaSort(campo: CampoOrden): 'none' | 'ascending' | 'descending' {
+    if (this.ordenarPor !== campo) return 'none';
+    return this.ordenAscendente ? 'ascending' : 'descending';
+  }
+
   resetearPreferencias(): void {
     this.filtroTipo = '';
     this.filtroRapido = 'ninguno';

@@ -616,24 +616,44 @@
           <tr>
             <th>ID</th>
             <th>Imagen</th>
-            <th class="th-ordenable" (click)="ordenar('marca')">
+            <th
+              class="th-ordenable"
+              (click)="ordenar('marca')"
+              [attr.aria-sort]="ariaSort('marca')"
+            >
               Marca <span class="icono-orden">{{ iconoOrden('marca') }}</span>
             </th>
-            <th class="th-ordenable" (click)="ordenar('modelo')">
+            <th
+              class="th-ordenable"
+              (click)="ordenar('modelo')"
+              [attr.aria-sort]="ariaSort('modelo')"
+            >
               Modelo <span class="icono-orden">{{ iconoOrden('modelo') }}</span>
             </th>
-            <th class="th-ordenable" (click)="ordenar('anio')">
+            <th class="th-ordenable" (click)="ordenar('anio')" [attr.aria-sort]="ariaSort('anio')">
               Año <span class="icono-orden">{{ iconoOrden('anio') }}</span>
             </th>
             <th>Color</th>
-            <th class="th-ordenable" (click)="ordenar('precio')">
+            <th
+              class="th-ordenable"
+              (click)="ordenar('precio')"
+              [attr.aria-sort]="ariaSort('precio')"
+            >
               Precio <span class="icono-orden">{{ iconoOrden('precio') }}</span>
             </th>
             <th>Tipo</th>
-            <th class="th-ordenable" (click)="ordenar('disponible')">
+            <th
+              class="th-ordenable"
+              (click)="ordenar('disponible')"
+              [attr.aria-sort]="ariaSort('disponible')"
+            >
               Disponible <span class="icono-orden">{{ iconoOrden('disponible') }}</span>
             </th>
-            <th class="th-ordenable" (click)="ordenar('favorito')">
+            <th
+              class="th-ordenable"
+              (click)="ordenar('favorito')"
+              [attr.aria-sort]="ariaSort('favorito')"
+            >
               Favorito <span class="icono-orden">{{ iconoOrden('favorito') }}</span>
             </th>
             <th>Acciones</th>
