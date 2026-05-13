@@ -10,6 +10,10 @@ export interface Usuario {
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Servicio de autenticación para la demo.
+ * Gestiona login/logout, registro local y estado reactivo de sesión usando localStorage.
+ */
 export class AuthService {
   // Usuarios predefinidos para la demo
   private usuariosValidos: Usuario[] = [
@@ -43,6 +47,7 @@ export class AuthService {
   }
 
   // Intenta login con usuario y contraseña
+  // Nota: en este proyecto demo no hay backend ni cifrado de credenciales.
   login(username: string, password: string): boolean {
     const usuario = this.usuariosValidos.find(
       (u) => u.username === username && u.password === password,

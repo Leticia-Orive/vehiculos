@@ -10,6 +10,10 @@ export interface ItemCarrito {
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Servicio de estado del carrito.
+ * Sirve para agregar/quitar productos, calcular totales y persistir el contenido en localStorage.
+ */
 export class CarritoService {
   private readonly storageKey = 'vehiculos.carrito.items';
   static readonly MAX_CANTIDAD = 99;
@@ -22,11 +26,13 @@ export class CarritoService {
     this.restaurarDesdeStorage();
   }
 
+  // Sincroniza estado reactivo + persistencia en cada cambio del carrito.
   private actualizarItems(items: ItemCarrito[]): void {
     this.itemsSubject.next(items);
     localStorage.setItem(this.storageKey, JSON.stringify(items));
   }
 
+  // Recupera carrito previo y normaliza cantidades para evitar datos inválidos al iniciar.
   private restaurarDesdeStorage(): void {
     const raw = localStorage.getItem(this.storageKey);
     if (!raw) {

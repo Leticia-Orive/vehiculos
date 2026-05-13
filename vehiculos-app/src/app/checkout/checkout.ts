@@ -25,6 +25,10 @@ interface DesgloseDescuentoTipo {
   templateUrl: './checkout.html',
   styleUrl: './checkout.scss',
 })
+/**
+ * Pantalla de checkout.
+ * Gestiona entrega, forma de pago (contado/financiado) y validaciones antes de confirmar la compra.
+ */
 export class CheckoutComponent implements OnInit, OnDestroy {
   private readonly checkoutDatosKey = 'vehiculos.checkout.datosEntrega';
   private readonly checkoutFormaPagoKey = 'vehiculos.checkout.formaPago';
@@ -187,6 +191,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // Desglose por modelo exacto para mostrar de forma transparente cómo se calcula el descuento
   get desgloseDescuentos(): DesgloseDescuentoTipo[] {
+    // Consolida descuentos por modelo para explicar cómo se compone el total financiado.
     const acumulado: Record<string, DesgloseDescuentoTipo> = {};
 
     for (const item of this.items) {

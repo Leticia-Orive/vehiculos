@@ -12,6 +12,10 @@ import { CarritoService } from './carrito.service';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
+/**
+ * Componente raíz de la aplicación.
+ * Coordina sesión, badge del carrito y acciones globales de navegación.
+ */
 export class App implements OnInit, OnDestroy {
   autenticado = false;
   esAdmin = false;

@@ -11,6 +11,10 @@ import { AuthService } from '../auth.service';
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
+/**
+ * Pantalla de inicio de sesión.
+ * Valida credenciales demo, maneja estado de carga y permite recordar usuario.
+ */
 export class LoginComponent implements OnDestroy {
   // Datos del formulario de login
   username: string = '';
@@ -49,6 +53,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   private guardarRecuerdoUsuario(): void {
+    // Guarda solo el username para UX; nunca persiste la contraseña.
     if (this.recordarme) {
       localStorage.setItem(this.recordarmeKey, this.username);
     } else {

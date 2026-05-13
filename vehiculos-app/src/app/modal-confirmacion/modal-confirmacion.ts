@@ -7,6 +7,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './modal-confirmacion.html',
   styleUrl: './modal-confirmacion.scss',
 })
+/**
+ * Modal reutilizable de confirmación.
+ * Emite eventos de confirmar/cancelar y soporta cierre por Escape/click fuera.
+ */
 export class ModalConfirmacion {
   @Input() mostrar: boolean = false;
   @Input() titulo: string = 'Confirmar acción';

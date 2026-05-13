@@ -1,3 +1,7 @@
+/**
+ * Modelo base de vehículo usado en catálogo, detalle, carrito y checkout.
+ * Centraliza el contrato de datos para mantener tipado consistente en toda la app.
+ */
 export interface Vehiculo {
   id: number;
   marca: string;
@@ -9,6 +13,7 @@ export interface Vehiculo {
   precio: number;
   tipo: 'auto' | 'camioneta' | 'moto' | 'camion';
   disponible: boolean;
+  // Datos opcionales para filtros/comparaciones técnicas.
   cilindrada?: number;
   potencia?: number;
 }

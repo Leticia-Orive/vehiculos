@@ -15,6 +15,10 @@ import { CarritoService } from '../carrito.service';
   templateUrl: './vehiculo-detalle.html',
   styleUrl: './vehiculo-detalle.scss',
 })
+/**
+ * Vista de detalle de un vehículo.
+ * Sirve para mostrar información completa, gestionar cantidades y operar sobre el carrito desde la ficha.
+ */
 export class VehiculoDetalle implements OnInit, OnDestroy {
   readonly cantidadMaxima: number = 99;
   // Placeholder usado cuando la imagen principal o relacionada no carga.
@@ -83,6 +87,7 @@ export class VehiculoDetalle implements OnInit, OnDestroy {
     }
   }
 
+  // Selecciona hasta 3 relacionados del mismo tipo para sugerencias rápidas en la ficha.
   private cargarRelacionados(): void {
     if (!this.vehiculo) {
       this.vehiculosRelacionados = [];

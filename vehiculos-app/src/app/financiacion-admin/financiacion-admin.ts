@@ -41,6 +41,10 @@ interface ImportacionPreview {
   templateUrl: './financiacion-admin.html',
   styleUrl: './financiacion-admin.scss',
 })
+/**
+ * Panel administrativo de reglas de financiación.
+ * Permite editar configuración base/tipo/modelo, validar cambios y gestionar import/export.
+ */
 export class FinanciacionAdminComponent implements OnInit, DoCheck, OnDestroy {
   private readonly limites = {
     descuentoSeguro: { min: 0, max: 20000, warning: 5000 },

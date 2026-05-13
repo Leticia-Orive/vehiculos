@@ -11,6 +11,10 @@ export interface FinanciacionConfigState {
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Servicio de configuración de financiación.
+ * Carga, normaliza y persiste reglas para base, tipo de vehículo y modelo específico.
+ */
 export class FinanciacionConfigService {
   private readonly storageKey = 'financiacion_config_v1';
 
@@ -87,6 +91,7 @@ export class FinanciacionConfigService {
   }
 
   private normalizeConfig(config: Partial<FinanciacionConfigState>): FinanciacionConfigState {
+    // Aplica defaults + saneamiento para que ninguna regla inválida rompa los cálculos.
     const defaults = this.defaultConfig();
 
     const normalizedPorModelo: Partial<Record<string, ReglaFinanciacion>> = {};

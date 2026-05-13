@@ -12,6 +12,10 @@ import { Vehiculo } from '../vehiculo.model';
   templateUrl: './vehiculo-form.html',
   styleUrl: './vehiculo-form.scss',
 })
+/**
+ * Formulario de alta/edición de vehículos para administración.
+ * Reutiliza la misma vista en modo creación y modo edición.
+ */
 export class VehiculoFormComponent implements OnInit, OnDestroy {
   readonly anioMinimo: number = 1900;
   readonly anioMaximo: number = new Date().getFullYear() + 2;
@@ -145,6 +149,7 @@ export class VehiculoFormComponent implements OnInit, OnDestroy {
   }
 
   private normalizarDatosFormulario(): void {
+    // Normaliza entradas para evitar espacios/formatos inconsistentes al guardar.
     this.vehiculo.marca = this.vehiculo.marca.trim();
     this.vehiculo.modelo = this.vehiculo.modelo.trim();
     this.vehiculo.color = this.vehiculo.color.trim();

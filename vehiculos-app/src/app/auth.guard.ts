@@ -3,7 +3,7 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from './auth.service';
 import { inject } from '@angular/core';
 
-// Guard funcional que protege las rutas de gestión de vehículos
+// Guard funcional que protege rutas privadas: exige sesión activa.
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);

@@ -23,6 +23,10 @@ interface AhorroEstimadoFila {
   templateUrl: './carrito.html',
   styleUrl: './carrito.scss',
 })
+/**
+ * Vista del carrito de compras.
+ * Permite ajustar cantidades, vaciar/restaurar y mostrar un estimado de ahorro por financiación.
+ */
 export class CarritoComponent implements OnInit, OnDestroy {
   private readonly ahorroUiStorageKey = 'carrito.ahorro.desglose.visible';
   items: ItemCarrito[] = [];
@@ -169,6 +173,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   get desgloseAhorroEstimado(): AhorroEstimadoFila[] {
+    // Agrupa por modelo para mostrar un resumen claro del ahorro total por línea.
     const config = this.financiacionConfigService.getConfig();
     const acumulado: Record<string, AhorroEstimadoFila> = {};
 
@@ -252,6 +257,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   private restaurarEstadoAhorro(): void {
+    // Persistencia simple de preferencia UI (mostrar/ocultar desglose de ahorro).
     const estadoGuardado = localStorage.getItem(this.ahorroUiStorageKey);
     if (estadoGuardado === '0') {
       this.mostrarDesgloseAhorro = false;

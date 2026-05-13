@@ -50,6 +50,10 @@ type EstadoPersistido = {
   templateUrl: './vehiculo-lista.html',
   styleUrl: './vehiculo-lista.scss',
 })
+/**
+ * Componente principal del catálogo.
+ * Administra filtros, orden, paginación, favoritos, comparación y persistencia de preferencias.
+ */
 export class VehiculoLista implements OnInit, OnDestroy {
   private readonly STORAGE_KEY = 'vehiculos.lista.estado';
   // Imagen de respaldo para evitar miniaturas rotas cuando una URL falla.
@@ -1375,6 +1379,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(estado));
   }
 
+  // Restaura estado persistido validando cada campo para evitar errores por datos corruptos.
   private cargarEstadoPersistido(): void {
     const raw = localStorage.getItem(this.STORAGE_KEY);
     if (!raw) {
@@ -1454,6 +1459,7 @@ export class VehiculoLista implements OnInit, OnDestroy {
     this.normalizarRangosCaracteristicas();
   }
 
+  // Parseo seguro de JSON: retorna null si la estructura no es un objeto utilizable.
   private parseEstadoPersistido(raw: string): Record<string, unknown> | null {
     try {
       const parsed: unknown = JSON.parse(raw);

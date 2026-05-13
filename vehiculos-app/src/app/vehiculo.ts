@@ -4,6 +4,10 @@ import { Vehiculo } from './vehiculo.model';
 @Injectable({
   providedIn: 'root',
 })
+/**
+ * Servicio de catálogo de vehículos en memoria.
+ * Expone operaciones CRUD básicas consumidas por listado, detalle y formulario admin.
+ */
 export class VehiculoService {
   // Datos en memoria para la demo; las imágenes apuntan a archivos locales en /public/vehiculos.
   private vehiculos: Vehiculo[] = [

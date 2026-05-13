@@ -11,6 +11,10 @@ import { AuthService } from '../auth.service';
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
+/**
+ * Pantalla de registro de usuario.
+ * Valida campos del formulario y crea cuentas locales para el flujo de autenticación demo.
+ */
 export class RegisterComponent implements OnDestroy {
   // Datos del formulario
   nombre: string = '';
